@@ -1,15 +1,70 @@
-import { useState } from "react"
+import api from '../api.js'
+import { ACCESS_TOKEN } from '../constants.js' 
+import { useNotification } from '../components/Notification'
+
+import { useState, useContext } from "react"
+import { useNavigate } from 'react-router-dom'
 import { Box, Button, Flex, Input, Text } from "@chakra-ui/react"
 import { motion, AnimatePresence } from "framer-motion"
 
-const MotionFlex = motion(Flex)
-const MotionButton = motion(Button)
+const MotionFlex = motion.create(Flex)
 
 function Login(){
     const [form, setForm] = useState("login")
+    const [username, setUsername] = useState("")
+    const [password, setPassword] = useState("")
 
+    const { showNotification } = useNotification()
+
+    const navigate = useNavigate()
+
+    async function handleLogin(){
+        if(username === '' || !password === ''){
+            showNotification('Please enter in all fields.')
+            return
+        }
+        const formData = {
+            username: username,
+            password: password,
+        }
+        try{
+            const response = await api.post('/users/login/', formData)
+            localStorage.setItem(ACCESS_TOKEN, response.data.token)
+            navigate('/home')
+        } catch(err){
+            if(err?.status === 401){
+                showNotification('Invalid user credentials. Please try again.')
+            }
+            else{
+                showNotification('Something went wrong.')
+            }
+        }
+    }
+    async function handleRegister(){
+        if(username === '' || !password === ''){
+            showNotification('Please enter in all fields.')
+            return
+        }
+        const formData = {
+            username: username,
+            password: password,
+        }
+        try{
+            await api.post('/users/register/', formData)
+            showNotification(`User ${username} successfully added. Please login with the same credentials`)
+        } catch(err){
+            console.error(err)
+            if(err?.response?.data?.message){
+                showNotification(err.response.data.message)
+            }
+            else{
+                showNotification('Something went wrong.')
+            }
+        }
+    }
     const selectedStyles = {
         justify: "center",
+        h: "35px",
         w: "50%",
         bgColor: "blue.400",
         color: "white",
@@ -42,20 +97,13 @@ function Login(){
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={form}
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <Text fontSize="2rem" textAlign="center" color="blue.500">
-                            {form === "login" ? "Login" : "Sign Up"}
-                        </Text>
-                    </motion.div>
-                </AnimatePresence>
 
-                {/* Form Switch */}
+                <Box>
+                    <Text fontSize="2rem" textAlign="center" color="blue.500">
+                        {form === "login" ? "Login" : "Sign Up"}
+                    </Text>
+                </Box>
+
                 <Flex 
                     direction="row"
                     borderRadius="5px"
@@ -63,39 +111,29 @@ function Login(){
                     borderWidth="1px"
                     borderColor="blue.400"
                 >
-                    <MotionFlex 
+                    <Button 
                         {...(form === "login" ? selectedStyles : unselectedStyles)}
-                        onClick={() => setForm("login")}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        onClick = {() => setForm("login")}
                     >
                         Login
-                    </MotionFlex>
-                    <MotionFlex 
+                    </Button>
+                    <Button 
                         {...(form === "signup" ? selectedStyles : unselectedStyles)}
-                        onClick={() => setForm("signup")}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        onClick = {() => setForm("signup")}
                     >
                         Sign Up
-                    </MotionFlex>
+                    </Button>
                 </Flex>
 
-                {/* Animated Inputs */}
-                <motion.div
-                    key={form}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                >
+                <form>
                     <Input 
                         size="md"
                         placeholder="Username"
                         _focus={{
                             borderColor: "blue.400",
-                            transform: "scale(1.05)",
-                            transition: "transform 0.2s ease-in-out"
                         }}
+                        value={ username }
+                        onChange={(e) => setUsername(e.target.value)}
                     />
                     <Input 
                         size="md"
@@ -104,24 +142,21 @@ function Login(){
                         mt="10px"
                         _focus={{
                             borderColor: "blue.400",
-                            transform: "scale(1.05)",
-                            transition: "transform 0.2s ease-in-out"
                         }}
+                        value={ password }
+                        onChange={(e) => setPassword(e.target.value)}
                     />
-                </motion.div>
+                </form>
 
-                {/* Animated Button */}
-                <MotionButton
+                <Button
                     h="35px"
                     color="white"
                     bgColor="blue.400"
                     borderRadius="5px"
-                    mt="15px"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    onClick={() => form === "login" ? handleLogin(): handleRegister()}
                 >
                     {form === "login" ? "Login" : "Sign Up"}
-                </MotionButton>
+                </Button>
             </MotionFlex>
         </Flex>
     )

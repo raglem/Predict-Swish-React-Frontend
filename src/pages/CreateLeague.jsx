@@ -52,21 +52,25 @@ function CreateLeague(){
     }
     const boxStyles = {
         p: "10px",
-        color: "white",
-        bgColor: "blue.400",
-        borderRadius: "5px"
+        paddingBottom: "15px",
+        color: "black",
+        borderRadius: "5px",
+        borderStyle: "solid",
+        borderWidth: "1px",
+        borderColor: "blue.400"
     }
     const buttonStyles = {
         h: "fit-content",
         w: "80px",
+        bgColor: "blue.400",
         color: "white",
         borderRadius: "5px",
         py: "0.5",
         px: "2",
         _hover: {
             cursor: "pointer",
-            bgColor: "blue.400",
-            color: "white"
+            transform: "scale(1.05)",
+            transition: "0.2s ease-in-out"
         }
     }
     const headerStyles = {
@@ -140,10 +144,10 @@ function CreateLeague(){
                         </Button>
                     </Flex>
                 </Flex>
-                <Flex {...boxStyles} direction="column" py="5px">
+                <Flex {...boxStyles} direction="column">
                     {
                         dummyData.friends.map((friend, i) => (
-                            <HStack align="stretch" borderBottom="1px solid white" key={i}>
+                            <HStack align="stretch" borderStyle="solid" borderBottomWidth="1px" borderColor="blue.400" key={i}>
                                 <Flex align="flex-end">
                                     <Text textStyle="sm">{friend.name}</Text>
                                 </Flex>
@@ -157,47 +161,45 @@ function CreateLeague(){
                 </Flex>
             </VStack>
 
-            <VStack align="stretch">
-                <Box>
-                    <Text size="md">Sent Invites</Text>
-                    <Box {...boxStyles} py="5px">
-                        {
-                            dummyData.friends.map((friend, i) => (
-                                <HStack align="stretch" borderBottom="1px solid white" key={i}>
-                                    <Flex align="flex-end">
-                                        <Text textStyle="sm">{friend.name}</Text>
-                                    </Flex>
-                                    <Spacer/>
-                                    <Button {...buttonStyles} marginY="5px" bgColor="red.500">
-                                        <Text textStyle="xs">Withdraw</Text>
-                                    </Button>
-                                </HStack>
-                            ))
-                        }
-                    </Box>
+            <Box>
+                <Text size="md">Sent Invites</Text>
+                <Box {...boxStyles}>
+                    {
+                        dummyData.friends.map((friend, i) => (
+                            <HStack align="stretch" borderStyle="solid" borderBottomWidth="1px" borderColor="blue.400" key={i}>
+                                <Flex align="flex-end">
+                                    <Text textStyle="sm">{friend.name}</Text>
+                                </Flex>
+                                <Spacer/>
+                                <Button {...buttonStyles} marginY="5px" bgColor="red.500">
+                                    <Text textStyle="xs">Withdraw</Text>
+                                </Button>
+                            </HStack>
+                        ))
+                    }
                 </Box>
-                <Box>
-                    <Text size="md">Received Requests</Text>
-                    <Box {...boxStyles} py="5px">
-                        {
-                            dummyData.friends.map((friend, i) => (
-                                <HStack align="stretch" borderBottom="1px solid white" key={i}>
-                                    <Flex align="flex-end">
-                                        <Text textStyle="sm">{friend.name}</Text>
-                                    </Flex>
-                                    <Spacer/>
-                                    <Button {...buttonStyles} marginY="5px" bgColor="red.500">
-                                        <Text textStyle="xs">Reject</Text>
-                                    </Button>
-                                </HStack>
-                            ))
-                        }
-                    </Box>
+            </Box>
+            <Box>
+                <Text size="md">Received Requests</Text>
+                <Box {...boxStyles}>
+                    {
+                        dummyData.friends.map((friend, i) => (
+                            <HStack align="stretch" borderStyle="solid" borderBottomWidth="1px" borderColor="blue.400" key={i}>
+                                <Flex align="flex-end">
+                                    <Text textStyle="sm">{friend.name}</Text>
+                                </Flex>
+                                <Spacer/>
+                                <Button {...buttonStyles} marginY="5px" bgColor="red.500">
+                                    <Text textStyle="xs">Reject</Text>
+                                </Button>
+                            </HStack>
+                        ))
+                    }
                 </Box>
-            </VStack>
+            </Box>
 
             <Flex justify="flex-end">
-                <Button {...buttonStyles} color="blue.400" bgColor="transparent" borderColor="blue.400" w="40vw" maxW="200px">
+                <Button {...buttonStyles} w="40vw" maxW="200px">
                     <Text textStyle="md">Create</Text>
                 </Button>
             </Flex>
