@@ -14,6 +14,7 @@ export const NotificationProvider = ({ children }) => {
     }
 
     return (
+        // specify value to be passed from provider to be showNotification function
         <NotificationContext.Provider value={{ showNotification }}>
                 {children}
             <AnimatePresence>
@@ -23,7 +24,9 @@ export const NotificationProvider = ({ children }) => {
     )
 }
 
+// { showNotification } is meant to be passed from useNotification to specify a message and make the notification visible for 3s
 export const useNotification = () => useContext(NotificationContext)
+
 function Notification({ message }){
     return (
         <MotionFlex
