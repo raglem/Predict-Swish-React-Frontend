@@ -1,30 +1,74 @@
+import api from "@/api";
 import Predict from "./Predict";
+import { useNotification } from "../components/Notification";
 
-import { Box, Button, Flex, HStack, SimpleGrid, Spacer, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, Flex, HStack, Input, SimpleGrid, Spacer, Text, VStack } from "@chakra-ui/react";
+import { useState, useEffect } from "react";
 
 function Home(){
-    const friends = [
-        {
-            id: 1,
-            name: "Bob Smith"
-        },
-        {
-            id: 2,
-            name: "Daniel Danny"
-        },
-        {
-            id: 3,
-            name: "Ryan Park"
-        },
-        {
-            id: 4,
-            name: "Ronald Phan"
-        },
-        {
-            id: 5,
-            name: "Brad Kim"
-        },
-    ]
+
+    const [friends, setFriends] = useState([])
+    const [requests, setRequests] = useState({ sentRequests: [], receivedRequests: [] })
+    const [friendCode, setFriendCode] = useState('')
+    const [loading, setLoading] = useState(true)
+    const { showNotification } = useNotification()
+    useEffect(() => {
+        getPlayer()
+    }, [])
+    async function getPlayer(){
+        setLoading(true)
+        try{
+            const response = await api.get('/players/')
+            const { friends, sent_requests, received_requests } = response.data.data
+
+            setFriends(friends)
+            setRequests({ sentRequests: sent_requests, receivedRequests: received_requests })
+        }
+        catch(err){
+            console.error(err)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+    async function addFriend(){
+        if(friendCode.length != 8){
+            showNotification("A friend's id must be an 8-digit number")
+            return
+        }
+
+        try{
+            setLoading(true)
+            const response = await api.post('/players/add-friend/', { friendId: friendCode })
+            console.log(response.data)
+            setRequests({ 
+                sentRequests: [...requests.sentRequests, { id: response.data.id,  name: response.data.data.name }], 
+                receivedRequests: requests.receivedRequests 
+            })
+            showNotification(`${response.data.data.name} received your friend request`)
+        }
+        catch(err){
+            console.error(err)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+    async function removeFriend({id, name}){
+        setLoading(true)
+        try{
+            const response = await api.delete('/players/delete-friend/', { data: { friendId: id } })
+            console.log(response)
+            setFriends(friends.filter(friend => friend.id !== id))
+            showNotification(`${name} was removed from your friend list`)
+        }
+        catch(err){
+            console.error(err)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
     const boxStyles = {
         border: "1px solid black",
         w: ["90vw", "45vw"],
@@ -51,10 +95,35 @@ function Home(){
             opacity: 0.5
         }
     }
+    const inputStyles = {
+        css: {
+            '&:focus': {
+                borderColor: 'blue.400',  
+                outlineColor: 'white'
+            }
+        }
+    }
     return <Flex direction="column" w="100vw" align="center">
-        <Box p="10px" justify="center" spaceY="10px">
-            <Flex {...headerStyles}>
+        <Box p="10px" justify="center" spaceY="20px">
+            <Flex {...headerStyles} direction={["column", "column", "row"]} align={["stretch", "stretch", "flex-end"]}>
                 <Text textStyle="lg">Friends</Text>
+                <Spacer/>
+                <Flex direction={["column", "column", "row"]} spaceX="10px" align={["center", "center", "flex-end"]}>
+                    <Text whiteSpace="nowrap">Add Friend</Text>
+                    <Flex align="stretch" h="30px" marginBottom="2px">
+                        <Input 
+                            {...inputStyles}
+                            h = "auto"
+                            w = "200px"
+                            placeholder="Ask a friend for their id"
+                            value = { friendCode }
+                            onChange = {(e) => setFriendCode(e.target.value)}
+                        />
+                        <Button {...buttonStyles } h="auto" bgColor="blue.400" onClick={() => addFriend()}>
+                            Send
+                        </Button>
+                    </Flex>
+                </Flex>
             </Flex>
             <SimpleGrid columns={[1, 2]} gap="5">
                 <Box>
@@ -62,14 +131,19 @@ function Home(){
                     <Box {...boxStyles}>
                         {
                             friends.map((friend, i) => (
-                                <HStack {...rowStyles(i)}>
+                                <HStack {...rowStyles(i)} key={friend.id}>
                                     <Text textStyle="sm">{friend.name}</Text>
                                     <Spacer/>
-                                    <Button {...buttonStyles} bgColor="red.500">
+                                    <Button {...buttonStyles} bgColor="red.500" onClick={() => removeFriend({ id: friend.id, name: friend.name })}>
                                         <Text fontSize="0.75rem">Remove</Text>
                                     </Button>
                                 </HStack>
                             ))
+                        }
+                        {
+                            friends.length === 0 && <Box {...rowStyles}>
+                                <Text textStyle="sm">None</Text>
+                            </Box>
                         }
                     </Box>
                 </Box>
@@ -78,8 +152,8 @@ function Home(){
                         <Text textStyle="md">My Sent Requests</Text>
                         <Box {...boxStyles}>
                             {
-                                friends.map((friend, i) => (
-                                    <HStack {...rowStyles(i)}>
+                                requests.sentRequests.map((friend, i) => (
+                                    <HStack {...rowStyles(i)} key={i}>
                                         <Text textStyle="sm">{friend.name}</Text>
                                         <Spacer/>
                                         <Button {...buttonStyles} bgColor="red.500">
@@ -88,6 +162,11 @@ function Home(){
                                     </HStack>
                                 ))
                             }
+                            {
+                                requests.sentRequests.length === 0 && <Box {...rowStyles}>
+                                    <Text textStyle="sm">None</Text>
+                                </Box>
+                            }
                         </Box>
                     </Box>
                     
@@ -95,8 +174,8 @@ function Home(){
                         <Text textStyle="md">My Received Requests</Text>
                         <Box {...boxStyles}>
                             {
-                                friends.map((friend, i) => (
-                                    <HStack {...rowStyles(i)}>
+                                requests.receivedRequests.map((friend, i) => (
+                                    <HStack {...rowStyles(i)} key={i}>
                                         <Text textStyle="sm">{friend.name}</Text>
                                         <Spacer/>
                                         <Button {...buttonStyles} bgColor="green.500">
@@ -104,6 +183,11 @@ function Home(){
                                         </Button>
                                     </HStack>
                                 ))
+                            }
+                            {
+                                requests.receivedRequests.length === 0 && <Box {...rowStyles}>
+                                    <Text textStyle="sm">None</Text>
+                                </Box>
                             }
                         </Box>
                     </Box>
@@ -116,6 +200,6 @@ function Home(){
                 <Predict/>
             </Box>
         </Box>
-</Flex>
+    </Flex>
 }
 export default Home

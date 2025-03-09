@@ -31,7 +31,7 @@ function Notification({ message }){
     return (
         <MotionFlex
             position="fixed"
-            top="20vh"
+            top="10vh"
             width="100vw"
             justify="center"
             initial={{ opacity: 0, y: -50 }}
