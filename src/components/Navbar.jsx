@@ -1,14 +1,19 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Flex, Heading, HStack, Spacer, Box, Button, Icon, Text, useBreakpointValue } from "@chakra-ui/react"
 import { MdEmail, MdMenu } from "react-icons/md"
 import { FaHamburger } from "react-icons/fa"
+import { UserContext } from "../context/CurrentUser"
+import { useNotification } from "./Notification"
+import { ACCESS_TOKEN } from "@/constants"
 
 function Navbar() {
     const navigate = useNavigate()
 
     const location = useLocation()
 
+    const { user, setUser} = useContext(UserContext)
+    const { showNotification } = useNotification()
     const [selectedPage, setSelectedPage] = useState(location.pathname.substring(1))
     const [showDropdown, setShowDropdown] = useState(false)
     const isMobile = useBreakpointValue({base: true, md: false})
@@ -51,6 +56,18 @@ function Navbar() {
         setShowDropdown(false)
     }
 
+    const logout = () => {
+        //hold value for current user from userContext
+        const tempUser = user
+
+        //clear localStorage and context
+        localStorage.clear()
+        setUser('')
+
+        showNotification(`Logged out of ${tempUser}`)
+        navigate('/')
+    }
+
     return (
         <Flex 
             direction="row" 
@@ -66,17 +83,12 @@ function Navbar() {
             </Heading>
 
             <Spacer />
-            <Icon 
-                as={MdEmail} 
-                color={selectedPage=='notifications' ? 'gray' : 'white'}
-                boxSize={6}
-                marginRight="10px"
-                _hover={{
-                    cursor: "pointer",
-                    opacity: 0.5
-                }}
-                onClick={() => handlePageChange('notifications')}
-            />
+            {
+                localStorage.getItem(ACCESS_TOKEN) && 
+                <Text color="white" marginRight="10px">
+                    Hi, { user }
+                </Text>
+            }
             {isMobile ?  
             (
                 <>
@@ -135,6 +147,12 @@ function Navbar() {
                             onClick={() => handlePageChange('leagues')}
                         >
                             Leagues
+                        </Button>
+                        <Button 
+                            {...buttonStyles}  
+                            onClick={logout}
+                        >
+                            Logout
                         </Button>
                     </HStack>
                 </Flex>

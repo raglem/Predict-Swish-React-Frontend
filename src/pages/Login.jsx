@@ -6,6 +6,7 @@ import { useState, useContext } from "react"
 import { useNavigate } from 'react-router-dom'
 import { Box, Button, Flex, Input, Text } from "@chakra-ui/react"
 import { motion, AnimatePresence } from "framer-motion"
+import { UserContext } from '../context/CurrentUser.jsx'
 
 const MotionFlex = motion.create(Flex)
 
@@ -17,6 +18,7 @@ function Login(){
     const { showNotification } = useNotification()
 
     const navigate = useNavigate()
+    const { setUser } = useContext(UserContext)
 
     async function handleLogin(){
         if(username === '' || !password === ''){
@@ -30,6 +32,7 @@ function Login(){
         try{
             const response = await api.post('/users/login/', formData)
             localStorage.setItem(ACCESS_TOKEN, response.data.token)
+            setUser(username)
             navigate('/home')
         } catch(err){
             if(err?.status === 401){
