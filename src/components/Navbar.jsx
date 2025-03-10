@@ -127,7 +127,7 @@ function Navbar() {
                     </Flex>
                 </>
             ) : 
-            (
+            ( localStorage.getItem(ACCESS_TOKEN) && 
                 <Flex align="center">
                     <HStack gap="10px" px="10px">
                         <Button  {...buttonStyles} 
