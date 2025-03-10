@@ -13,7 +13,7 @@ import Notifications from "./pages/Notifications"
 import ProtectedRoute from "./components/ProtectedRoute"
 
 import { Flex } from "@chakra-ui/react"
-import { ACCESS_TOKEN } from "./constants"
+import NotFound from "./pages/NotFound"
 
 function App() {
   return (
@@ -35,23 +35,49 @@ function App() {
           />
           <Route
             path="/games"
-            element={<Games />}
+            element={
+              <ProtectedRoute>
+                <Games />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/predict"
-            element={<Predict />}
+            element={
+              <ProtectedRoute>
+                <Predict />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/leagues"
-            element={<Leagues />}
+            element={
+              <ProtectedRoute>
+                <Leagues />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/leagues/create"
-            element={<CreateLeague />}
+            element={
+              <ProtectedRoute>
+                <CreateLeague />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/notifications"
-            element={<Notifications />}
+            element={
+              <ProtectedRoute>
+                <Notifications />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <NotFound/>
+            }
           />
         </Routes>
       </BrowserRouter>
