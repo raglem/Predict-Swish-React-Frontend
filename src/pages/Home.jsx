@@ -40,7 +40,6 @@ function Home(){
         try{
             setLoading(true)
             const response = await api.post('/players/add-friend/', { friendId: friendCode })
-            console.log(response.data)
             setRequests({ 
                 sentRequests: [...requests.sentRequests, { id: response.data.id,  name: response.data.data.name }], 
                 receivedRequests: requests.receivedRequests 
@@ -54,11 +53,47 @@ function Home(){
             setLoading(false)
         }
     }
+    async function acceptFriend({id, name}){
+        setLoading(true)
+        try{
+            console.log(id)
+            const response = await api.patch('/players/accept-friend/', { friendId: id })
+            console.log(response)
+            setFriends([...friends, {id, name}])
+            setRequests({ 
+                sentRequests: requests.sentRequests,
+                receivedRequests: requests.receivedRequests.filter(request => request.id !== id)
+            })
+            showNotification(`${name} was added to your friend list`)
+        }
+        catch(err){
+            console.error(err)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+    async function cancelFriendRequest({id, name}){
+        setLoading(true)
+        try{
+            const response = await api.delete('/players/delete-request/', { data: { friendId: id } })
+            setRequests({
+                sentRequests: requests.sentRequests.filter(request => request.id !== id),
+                receivedRequests: requests.receivedRequests
+            })
+            showNotification(`Friend request to ${name} was canceled`)
+        }
+        catch(err){
+            console.error(err)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
     async function removeFriend({id, name}){
         setLoading(true)
         try{
             const response = await api.delete('/players/delete-friend/', { data: { friendId: id } })
-            console.log(response)
             setFriends(friends.filter(friend => friend.id !== id))
             showNotification(`${name} was removed from your friend list`)
         }
@@ -156,7 +191,11 @@ function Home(){
                                     <HStack {...rowStyles(i)} key={i}>
                                         <Text textStyle="sm">{friend.name}</Text>
                                         <Spacer/>
-                                        <Button {...buttonStyles} bgColor="red.500">
+                                        <Button 
+                                            {...buttonStyles} 
+                                            bgColor="red.500"
+                                            onClick={() => cancelFriendRequest({ id: friend.id, name: friend.name })}
+                                        >
                                             <Text fontSize="0.75rem">Remove</Text>
                                         </Button>
                                     </HStack>
@@ -178,7 +217,11 @@ function Home(){
                                     <HStack {...rowStyles(i)} key={i}>
                                         <Text textStyle="sm">{friend.name}</Text>
                                         <Spacer/>
-                                        <Button {...buttonStyles} bgColor="green.500">
+                                        <Button 
+                                            {...buttonStyles} 
+                                            bgColor="green.500"
+                                            onClick = {() => acceptFriend({ id: friend.id, name: friend.name})}
+                                        >
                                             <Text fontSize="0.75rem">Add</Text>
                                         </Button>
                                     </HStack>
