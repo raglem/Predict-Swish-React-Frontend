@@ -40,7 +40,7 @@ function GameCard(){
     const game = formatGame(dummyData)
 
     const images = import.meta.glob("../assets/logos/*.png", { eager: true });
-    const getImage = (team) => images[`../assets/logos/${team}.png`]?.default;
+    const getImage = (team) => images[`../assets/logos/Bulls.png`]?.default;
     const team = game.homeTeam;
 
     function formatGame(data){

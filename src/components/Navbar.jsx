@@ -1,4 +1,4 @@
-import { useState, useContext } from "react"
+import { useState, useContext, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Flex, Heading, HStack, Spacer, Box, Button, Icon, Text, useBreakpointValue } from "@chakra-ui/react"
 import { MdEmail, MdMenu } from "react-icons/md"
@@ -17,6 +17,11 @@ function Navbar() {
     const [selectedPage, setSelectedPage] = useState(location.pathname.substring(1))
     const [showDropdown, setShowDropdown] = useState(false)
     const isMobile = useBreakpointValue({base: true, md: false})
+
+    useEffect(() => {
+        setSelectedPage(location.pathname.substring(1))
+        setShowDropdown(false)
+    }, [location.pathname])
 
     const buttonStyles = {
         h: "fit-content",
@@ -52,8 +57,6 @@ function Navbar() {
 
     const handlePageChange = (page) => {
         navigate(`/${page}`)
-        setSelectedPage(page)
-        setShowDropdown(false)
     }
 
     const logout = () => {
