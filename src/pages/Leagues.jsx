@@ -34,29 +34,31 @@ function Leagues(){
             opacity: 0.5
         }
     }
-    return <Flex direction="column" h="100%" w="100vw" p="10px" spaceY="20px">
-        <HStack align="center" borderBottom="1px solid black">
-            <Text textStyle="lg">Leagues</Text>
-            <Button {...buttonStyles} bgColor="blue.400" onClick={() => navigate("/leagues/create/")}>
-                Create League
-            </Button>
-        </HStack>
-        <Flex direction="column" spaceY="20px">
-            {
-                !loading && 
-                leagues.map((league) => {
-                    return <LeagueCard
-                        key={league.id}
-                        info={league}
-                    />
-                    
-                })
-            }
-            {
-                loading && <Box>
-                    <Text>Loading...</Text>
-                </Box>
-            }
+    return <Flex direction="column" align="center" h="100%" w="100vw" p="10px" spaceY="20px" overflyY="auto">
+        <Flex direction="column" align="stretch" w="100%" maxW="1024px">
+            <HStack align="center" borderBottom="1px solid black">
+                <Text textStyle="2xl">Leagues</Text>
+                <Button {...buttonStyles} bgColor="blue.400" onClick={() => navigate("/leagues/create/")}>
+                    Create League
+                </Button>
+            </HStack>
+            <Flex direction="column" align="center" maxW="1440px" spaceY="20px">
+                {
+                    !loading && 
+                    leagues.map((league) => {
+                        return <LeagueCard
+                            key={league.id}
+                            info={league}
+                        />
+                        
+                    })
+                }
+                {
+                    loading && <Box>
+                        <Text>Loading...</Text>
+                    </Box>
+                }
+            </Flex>
         </Flex>
     </Flex>
 }

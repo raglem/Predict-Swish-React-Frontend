@@ -106,11 +106,12 @@ function LeagueCard({info}){
                     <Box>
                         {league.recent_games.map((game) => (
                             <Flex direction="row" align="center" justify="space-between" key={game.balldontlie_id}>
-                                <Flex justify="space-evenly" align="center" w="80%">
+                                <Flex justify="center" align="center" w="80%" paddingLeft="10%">
                                     <Image src={getImage(game.away_team)} display="inline-block" boxSize="50px" mr="5px" />
-                                    {game.away_team} vs
-                                    <Image src={getImage(game.home_team)} display="inline-block" boxSize="50px" ml="5px" />
-                                    {game.home_team}
+                                    <Box w="15%" minW="fit-content">{game.away_team}</Box>
+                                    <Box w="15%" textAlign="center"> vs </Box>
+                                    <Image src={getImage(game.home_team)} display="inline-block" boxSize="50px" ml="5px"/>
+                                    <Box w="20%" minW="fit-content">{game.home_team}</Box>
                                 </Flex>
                                 <Box>{formatDate(game.date)}</Box>
                             </Flex>
@@ -125,7 +126,7 @@ function LeagueCard({info}){
                     <Box>
                         <Box>
                             {league.recent_games.map(game => (
-                                <Flex direction="row" width="100%" key={game.date}>
+                                <Flex direction="row" width="100%" key={game.balldontlie_id}>
                                     <Flex w="80%">
                                         <SimpleGrid columns={4} w="100%">
                                             <Flex direction="column" justify="center" align="center" w="1fr">
