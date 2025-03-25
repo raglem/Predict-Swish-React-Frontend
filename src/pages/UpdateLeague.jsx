@@ -1,25 +1,22 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
 
 import api from "../api"
 import Select from "../components/Select"
-import { useNotification } from "../components/Notification.jsx"
 
-import { Box, Button, Checkbox, Flex, Group, HStack, Input, SimpleGrid, Spacer, Text, VStack } from "@chakra-ui/react"
+import { Box, Button, Flex, Group, HStack, Input, SimpleGrid, Spacer, Text, VStack } from "@chakra-ui/react"
+import { Field } from "@/components/ui/field"
+
 import { MdInfoOutline } from "react-icons/md";
 
 import { teams } from "../assets/appInfo"
 
-function CreateLeague(){
+function UpdateLeague(){
     const [gameDetails, setGameDetails] = useState({
         name: '',
         mode: '',
         team: '',
     })
-    const [invited_players, setInvitedPlayers] = useState([])
     const [friends, setFriends] = useState([])
-    const { showNotification } = useNotification()
-    const navigate = useNavigate()
 
     useEffect(() => {
         getFriends()
@@ -35,53 +32,12 @@ function CreateLeague(){
         }
     }
 
-    const createLeague = async () => {
-        if(!gameDetails.name){
-            showNotification("Please enter a league name")
-            return
-        }
-        else if(!gameDetails.mode){
-            showNotification("Please select a mode")
-            return
-        }
-        else if(gameDetails.mode === "Team" && !gameDetails.team){
-            showNotification("Please select a team")
-            return
-        }
-        const requestData = {
-            name: gameDetails.name,
-            mode: gameDetails.mode.trim().toLowerCase(),
-            team: gameDetails.team,
-            invited_players: invited_players,
-        }
-
-        console.log(requestData)
-
-        try{
-            const response = await api.post('/leagues/create/', requestData)
-            showNotification(`League ${gameDetails.name} created successfully`)
-            navigate(`/leagues/`)
-            console.log(response)
-        } 
-        catch(err){
-            console.log(err)
-            showNotification("Something went wrong. Please try again")
-        }
-    }
-
     const handleGameDetailsChange = (detail, option) => {
         setGameDetails({
             ...gameDetails,
             [detail]: option
         })
         console.log(gameDetails)
-    }
-    const handleInvitedPlayersChange = (e, playerId) => {
-        if(e.target.checked){
-            setInvitedPlayers([...invited_players, playerId])
-        } else {
-            setInvitedPlayers(invited_players.filter(id => id !== playerId))
-        }
     }
 
     const formContainerStyles = {
@@ -124,11 +80,11 @@ function CreateLeague(){
             }
         }
     }
-    return <Flex direction="column" w="100vw" p="10px" align="center">
+    return <Flex direction="column" w="100vw" p="10px" align="center" spaceY="20px">
         <VStack {...formContainerStyles}>
             <Flex {...headerStyles}>
                 <Text textStyle="lg">
-                    Create League
+                    Update League
                 </Text>
             </Flex>
 
@@ -163,11 +119,28 @@ function CreateLeague(){
                 </Select>
             </VStack>
 
-            <Box>
-                <Flex>
-                    <Text textStyle="md">Invite Friends</Text>
+            <VStack align="stretch">
+                <Flex direction={["column", "row"]} spaceX={["0", "20px"]}>
+                    <Text textStyle="md">My Friends</Text>
+                    <Flex direction="row">
+                        <Input
+                            {...inputStyles}
+                            h="fit-content"
+                            placeholder="Enter friend id"
+                            borderRightRadius="0"
+                        />
+                        <Button
+                            {...buttonStyles}
+                            h="fit-content"
+                            py="0"
+                            borderLeftRadius="0"
+                            bgColor="blue.400"
+                        >
+                            Send
+                        </Button>
+                    </Flex>
                 </Flex>
-                <Flex {...boxStyles} direction="column" spaceY="10px">
+                <Flex {...boxStyles} direction="column">
                     {
                         friends.map((friend, i) => (
                             <HStack align="stretch" borderStyle="solid" borderBottomWidth="1px" borderColor="blue.400" key={i}>
@@ -175,18 +148,54 @@ function CreateLeague(){
                                     <Text textStyle="sm">{friend.name}</Text>
                                 </Flex>
                                 <Spacer/>
-                                <input 
-                                    type="checkbox"
-                                    onChange = {(e) => handleInvitedPlayersChange(e, friend.id)}
-                                />
+                                <Button {...buttonStyles} marginY="5px" bgColor="green.500">
+                                    <Text textStyle="xs">Invite</Text>
+                                </Button>
                             </HStack>
                         ))
                     }
                 </Flex>
+            </VStack>
+
+            <Box>
+                <Text size="md">Sent Invites</Text>
+                <Box {...boxStyles}>
+                    {
+                        friends.map((friend, i) => (
+                            <HStack align="stretch" borderStyle="solid" borderBottomWidth="1px" borderColor="blue.400" key={i}>
+                                <Flex align="flex-end">
+                                    <Text textStyle="sm">{friend.name}</Text>
+                                </Flex>
+                                <Spacer/>
+                                <Button {...buttonStyles} marginY="5px" bgColor="red.500">
+                                    <Text textStyle="xs">Withdraw</Text>
+                                </Button>
+                            </HStack>
+                        ))
+                    }
+                </Box>
+            </Box>
+            <Box>
+                <Text size="md">Received Requests</Text>
+                <Box {...boxStyles}>
+                    {
+                        friends.map((friend, i) => (
+                            <HStack align="stretch" borderStyle="solid" borderBottomWidth="1px" borderColor="blue.400" key={i}>
+                                <Flex align="flex-end">
+                                    <Text textStyle="sm">{friend.name}</Text>
+                                </Flex>
+                                <Spacer/>
+                                <Button {...buttonStyles} marginY="5px" bgColor="red.500">
+                                    <Text textStyle="xs">Reject</Text>
+                                </Button>
+                            </HStack>
+                        ))
+                    }
+                </Box>
             </Box>
 
             <Flex justify="flex-end">
-                <Button {...buttonStyles} w="40vw" maxW="200px" onClick={createLeague}>
+                <Button {...buttonStyles} w="40vw" maxW="200px">
                     <Text textStyle="md">Create</Text>
                 </Button>
             </Flex>

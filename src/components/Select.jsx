@@ -26,7 +26,7 @@ function Select({label, detail, info, placeholder, selected, options, onSelect})
     }, []);
 
     function handleOptionChange(option){
-        onSelect(option, detail)
+        onSelect(detail, option)
         setIsFocused(false)
     }
 
@@ -72,7 +72,7 @@ function Select({label, detail, info, placeholder, selected, options, onSelect})
             ref={selectRef}
         >
             <HStack>
-                {selected?.label || placeholder}
+                {selected || placeholder}
                 <Spacer/>
                 <Icon 
                     as={isFocused ? FaCaretUp : FaCaretDown}
@@ -97,11 +97,11 @@ function Select({label, detail, info, placeholder, selected, options, onSelect})
                 {options.map(option => (
                     <Box 
                         {...optionStyle} 
-                        key={option.value}
+                        key={option}
                         onClick={() => handleOptionChange(option)}
                     >
                         <Text textStyle="sm">
-                            {option.label}
+                            {option}
                         </Text>
                     </Box>
                 ))}

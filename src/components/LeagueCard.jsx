@@ -4,76 +4,45 @@ import { Box, Flex, GridItem, HStack, Icon, Image, SimpleGrid, Spacer, Text } fr
 import { FaUserFriends } from "react-icons/fa";
 
 function LeagueCard({info}){
+    /*
+     info = {
+        id:
+        mode:
+        name:
+        recent_games: {[
+            balldontlie_id:
+            date:
+            status:
+            home_team:
+            away_team
+            home_team_score:
+            away_team_score:
+        ]}
+        upcoming_games: {[
+            balldontlie_id:
+            date:
+            status:
+            home_team:
+            away_team
+            home_team_score:
+            away_team_score:
+        ]}
+    */
     const [league, setLeague] = useState({
         ...info,
-        recent_games: [],
         ranking: 0,
         leaderboards: [],
         score: 0,
     })
     useEffect(() => {
+        console.log({ recent_games: info.recent_games, upcoming_games: info.upcoming_games })
         setLeague({
             ...info,
-            recent_games: info.upcoming_games,
             ranking: 1,
             leaderboards: [{name: "bobby", mutualFriend: false, place: 1, totalScore: 10200}, {name: "jack", mutualFriend: true, place: 2, totalScore: 900}, {name: "danny", mutualFriend: false, place: 4, totalScore: 800}],
             score: 1200,
         })
     }, [])
-    const dummyData = {
-        name: "Hoopers",
-        mode: "Classic Mode",
-        team: null,
-        upcomingGames: [
-            {
-                homeTeam: "Celtics",
-                awayTeam: "Hornets",
-                date: "2018-10-17 00:00:00+00"
-            },
-            {
-                homeTeam: "Hornets",
-                awayTeam: "Hawks",
-                date: "2018-10-19 00:00:00+00"
-            }
-        ],
-        recentGames: [
-            {
-                homeTeam: "Nets",
-                awayTeam: "Hornets",
-                date: "2018-10-17 00:00:00+00",
-                userScore: 120,
-                userPlace: 5
-            },
-            {
-                homeTeam: "Bulls",
-                awayTeam: "Celtics",
-                date: "2018-10-19 00:00:00+00",
-                userScore: 240,
-                userPlace: 3
-            }
-        ],
-        leaderboards: [
-            {
-                name: "bobby",
-                mutualFriend: false,
-                place: 1,
-                totalScore: 10200
-            },
-            {
-                name: "jack",
-                mutualFriend: true,
-                place: 2,
-                totalScore: 900
-            },
-            {
-                name: "danny",
-                mutualFriend: false,
-                place: 4,
-                totalScore: 800
-            }
-
-        ]
-    }
 
     const images = import.meta.glob("../assets/logos/*.png", { eager: true });
     const getImage = (team) => images[`../assets/logos/${team}.png`]?.default;
@@ -104,7 +73,7 @@ function LeagueCard({info}){
                         <Flex justify="flex-end" textStyle="lg">Date</Flex>
                     </SimpleGrid>
                     <Box>
-                        {league.recent_games.map((game) => (
+                        {league.upcoming_games.map((game) => (
                             <Flex direction="row" align="center" justify="space-between" key={game.balldontlie_id}>
                                 <Flex justify="center" align="center" w="80%" paddingLeft="10%">
                                     <Image src={getImage(game.away_team)} display="inline-block" boxSize="50px" mr="5px" />

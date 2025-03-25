@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 
 import api from "../api"
 import LeagueCard from "../components/LeagueCard"
+import LeagueOwnerCard from "../components/LeagueOwnerCard"
 
 import { Box, Button, Flex, HStack, SimpleGrid, Text } from "@chakra-ui/react"
 
@@ -35,6 +36,7 @@ function Leagues(){
         }
     }
     return <Flex direction="column" align="center" h="100%" w="100vw" p="10px" spaceY="20px" overflyY="auto">
+        <LeagueOwnerCard />
         <Flex direction="column" align="stretch" w="100%" maxW="1024px">
             <HStack align="center" borderBottom="1px solid black">
                 <Text textStyle="2xl">Leagues</Text>
