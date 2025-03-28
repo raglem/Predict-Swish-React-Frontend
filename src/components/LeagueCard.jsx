@@ -9,39 +9,56 @@ function LeagueCard({info}){
         id:
         mode:
         name:
-        recent_games: {[
-            balldontlie_id:
-            date:
-            status:
-            home_team:
-            away_team
-            home_team_score:
-            away_team_score:
-        ]}
-        upcoming_games: {[
-            balldontlie_id:
-            date:
-            status:
-            home_team:
-            away_team
-            home_team_score:
-            away_team_score:
-        ]}
+        recent_games: [
+            {
+                balldontlie_id:
+                date:
+                status:
+                home_team:
+                away_team
+                home_team_score:
+                away_team_score:
+                rank:
+                score: 
+            }
+            ...
+        ]
+        upcoming_games: [
+            {
+                balldontlie_id:
+                date:
+                status:
+                home_team:
+                away_team
+                home_team_score:
+                away_team_score:
+            }
+            ...
+        ]
+        leaderboard: [
+            {
+                player_id,
+                username,
+                mutualFriend,
+                totalScore,
+            }
+            ...
+        ]
     */
     const [league, setLeague] = useState({
-        ...info,
-        ranking: 0,
-        leaderboards: [],
-        score: 0,
+        id: null,
+        balldontlie_id: null,
+        name: '',
+        mode: '',
+        team: '',
+        upcoming_games: [],
+        recent_games: [],
+        leaderboard: []
     })
+
     useEffect(() => {
-        console.log({ recent_games: info.recent_games, upcoming_games: info.upcoming_games })
-        setLeague({
-            ...info,
-            ranking: 1,
-            leaderboards: [{name: "bobby", mutualFriend: false, place: 1, totalScore: 10200}, {name: "jack", mutualFriend: true, place: 2, totalScore: 900}, {name: "danny", mutualFriend: false, place: 4, totalScore: 800}],
-            score: 1200,
-        })
+        console.log(info)
+        setLeague(info)
     }, [])
 
     const images = import.meta.glob("../assets/logos/*.png", { eager: true });
@@ -53,6 +70,18 @@ function LeagueCard({info}){
         }
         catch{
             return ""
+        }
+    }
+    const getRankSuffix = (rank) => {
+        switch (rank) {
+            case 1:
+                return "st";
+            case 2:
+                return "nd";
+            case 3:
+                return "rd";
+            default:
+                return "th";
         }
     }
 
@@ -102,11 +131,11 @@ function LeagueCard({info}){
                                                 <Image src={getImage(game.away_team)} boxSize="50px" />
                                             </Flex>
                                             <Flex direction="column" justify="center" align="center" w="1fr">
-                                                <Box>112</Box>
+                                                <Box>{game.away_team_score}</Box>
                                                 <Box>{game.away_team}</Box>
                                             </Flex>
                                             <Flex direction="column" justify="center" align="center" w="1fr">
-                                                <Box>112</Box>
+                                                <Box>{game.home_team_score}</Box>
                                                 <Box>{game.home_team}</Box>
                                             </Flex>
                                             <Flex direction="column" justify="center" align="center" w="1fr">
@@ -115,7 +144,7 @@ function LeagueCard({info}){
                                         </SimpleGrid>
                                     </Flex>
                                     <Flex flex={1} direction="row-reverse" align="center" whiteSpace="nowrap">
-                                        1st | 226pts
+                                        { game.rank }{ getRankSuffix(game.rank) } | { game.score }
                                     </Flex>
                                 </Flex>
                             ))}
@@ -126,10 +155,10 @@ function LeagueCard({info}){
             <Box flex={1} p="10px" spaceY="20px" bgColor="red.500" borderRadius="20px" color="white">
                 <Box textStyle="lg">Leaderboards</Box>
                 <Box>
-                    {league.leaderboards.map((leaderboard) => {
-                        return <Flex direction="row" align="center" justify="space-between" borderBottom="1px solid white" key={leaderboard.name}>
-                            <Box>{leaderboard.place}. {leaderboard.name}</Box>
-                            <Box spaceX="5px">{leaderboard.mutualFriend && <Icon as={FaUserFriends} />} {leaderboard.totalScore}</Box>
+                    {league.leaderboard.map((player) => {
+                        return <Flex direction="row" align="center" justify="space-between" borderBottom="1px solid white" key={player.playerId}>
+                            <Box>{player.ranking}. {player.username}</Box>
+                            <Box spaceX="5px">{player.mutualFriend && <Icon as={FaUserFriends} />} {player.totalScore}</Box>
                         </Flex>
                     })}
                 </Box>
