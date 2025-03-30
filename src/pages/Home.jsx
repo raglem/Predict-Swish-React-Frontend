@@ -8,13 +8,21 @@ import { useState, useEffect } from "react";
 function Home(){
 
     const [friends, setFriends] = useState([])
-    const [requests, setRequests] = useState({ sentRequests: [], receivedRequests: [] })
+    const [friendRequests, setFriendRequests] = useState({ sentRequests: [], receivedRequests: [] })
     const [friendCode, setFriendCode] = useState('')
+
+    const [leagues, setLeagues] = useState([])
+    const [leagueInvites, setLeagueInvites] = useState([])
+    const [leagueRequests, setLeagueRequests] = useState([])
+    const [leagueCode, setLeagueCode] = useState('')
+
     const [loading, setLoading] = useState(true)
     const { showNotification } = useNotification()
+
     useEffect(() => {
         getPlayer()
     }, [])
+
     async function getPlayer(){
         setLoading(true)
         try{
@@ -22,7 +30,7 @@ function Home(){
             const { friends, sent_requests, received_requests } = response.data.data
 
             setFriends(friends)
-            setRequests({ sentRequests: sent_requests, receivedRequests: received_requests })
+            setFriendRequests({ sentRequests: sent_requests, receivedRequests: received_requests })
         }
         catch(err){
             console.error(err)
@@ -31,6 +39,28 @@ function Home(){
             setLoading(false)
         }
     }
+
+    useEffect(() => {
+        getLeagues()
+    }, [])
+
+    async function getLeagues(){
+        setLoading(true)
+        try{
+            const response = await api.get('/leagues/invites')
+            const { member_leagues, invited_leagues, requesting_leagues } = response.data.data
+            setLeagues(member_leagues)
+            setLeagueInvites(invited_leagues)
+            setLeagueRequests(requesting_leagues)
+        }
+        catch(err){
+            console.error(err)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+
     async function addFriend(){
         if(friendCode.length != 8){
             showNotification("A friend's id must be an 8-digit number")
@@ -40,13 +70,14 @@ function Home(){
         try{
             setLoading(true)
             const response = await api.post('/players/add-friend/', { friendId: friendCode })
-            setRequests({ 
+            setFriendRequests({ 
                 sentRequests: [...requests.sentRequests, { id: response.data.id,  name: response.data.data.name }], 
                 receivedRequests: requests.receivedRequests 
             })
             showNotification(`${response.data.data.name} received your friend request`)
         }
         catch(err){
+            showNotification('Something went wrong. Please try again')
             console.error(err)
         }
         finally{
@@ -60,13 +91,14 @@ function Home(){
             const response = await api.patch('/players/accept-friend/', { friendId: id })
             console.log(response)
             setFriends([...friends, {id, name}])
-            setRequests({ 
+            setFriendRequests({ 
                 sentRequests: requests.sentRequests,
                 receivedRequests: requests.receivedRequests.filter(request => request.id !== id)
             })
             showNotification(`${name} was added to your friend list`)
         }
         catch(err){
+            showNotification('Something went wrong. Please try again')
             console.error(err)
         }
         finally{
@@ -77,13 +109,14 @@ function Home(){
         setLoading(true)
         try{
             const response = await api.delete('/players/delete-request/', { data: { friendId: id } })
-            setRequests({
+            setFriendRequests({
                 sentRequests: requests.sentRequests.filter(request => request.id !== id),
                 receivedRequests: requests.receivedRequests
             })
             showNotification(`Friend request to ${name} was canceled`)
         }
         catch(err){
+            showNotification('Something went wrong. Please try again')
             console.error(err)
         }
         finally{
@@ -98,6 +131,66 @@ function Home(){
             showNotification(`${name} was removed from your friend list`)
         }
         catch(err){
+            showNotification('Something went wrong. Please try again')
+            console.error(err)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+    async function acceptLeagueInvite(leagueId){
+        setLoading(true)
+        try{
+            const response = await api.patch('/leagues/accept-invite/', { leagueId: leagueId })
+            console.log(response)
+            showNotification(`You accepted and were added to the ${response.data.data.name} league`)
+            setLeagues([...leagues, response.data.data])
+            setLeagueInvites(leagueInvites.filter(league => league.id !== leagueId))
+        }
+        catch(err){
+            showNotification('Something went wrong. Please try again')
+            console.error(err)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+    async function sendLeagueRequest(){
+        if (!/^\d{8}$/.test(leagueCode)) {
+            showNotification("A league code must be an 8-digit number");
+            return;
+        }
+        setLoading(true)
+        try{
+            const response = await api.post('/leagues/request', { joinCode: leagueCode })
+            setLeagueRequests([...leagueRequests, response.data.data])
+            showNotification(`The ${response.data.data.name} league received your join request`)
+        }
+        catch(err){
+            if(err.response.data.userMessage){
+                showNotification(err.response.data.userMessage)
+            }
+            else{
+                showNotification('Something went wrong. Please try again')
+            }
+            console.error(err)
+        }
+        finally{
+            setLeagueCode('')
+            setLoading(false)
+        }
+    }
+    async function removeLeague(leagueId){
+        setLoading(true)
+        try{
+            const response = await api.delete('/leagues/delete-current-player/', { data: { leagueId: leagueId } })
+            showNotification(`You have been removed from the ${response.data.data.name} league`)
+            setLeagues(leagues.filter(league => league.id !== leagueId))
+            setLeagueInvites(leagueInvites.filter(league => league.id !== leagueId))
+            setLeagueRequests(leagueRequests.filter(league => league.id !== leagueId))
+        }
+        catch(err){
+            showNotification('Something went wrong. Please try again')
             console.error(err)
         }
         finally{
@@ -114,11 +207,11 @@ function Home(){
         justify: "stretch",
         borderBottom: "1px solid black",
     }
-    const rowStyles = (index) => ({
+    const rowStyles = {
         align: "flex-end",
         py:"5px",
-        borderBottom: index === friends.length - 1 ? "none" : "1px solid black",
-    });
+        borderBottom: "1px solid black"
+    }
     const buttonStyles = {
         h:"fit-content",
         minW:"75px",
@@ -166,7 +259,11 @@ function Home(){
                     <Box {...boxStyles}>
                         {
                             friends.map((friend, i) => (
-                                <HStack {...rowStyles(i)} key={friend.id}>
+                                <HStack 
+                                    {...rowStyles} 
+                                    key={friend.id} 
+                                    borderBottom={i === friends.length - 1 ? "0px" : rowStyles.borderBottom}
+                                >
                                     <Text textStyle="sm">{friend.name}</Text>
                                     <Spacer/>
                                     <Button {...buttonStyles} bgColor="red.500" onClick={() => removeFriend({ id: friend.id, name: friend.name })}>
@@ -187,8 +284,12 @@ function Home(){
                         <Text textStyle="md">My Sent Requests</Text>
                         <Box {...boxStyles}>
                             {
-                                requests.sentRequests.map((friend, i) => (
-                                    <HStack {...rowStyles(i)} key={i}>
+                                friendRequests.sentRequests.map((friend, i) => (
+                                    <HStack 
+                                        {...rowStyles} 
+                                        key={i} 
+                                        borderBottom={i === friendRequests.sentRequests.length - 1 ? "0px" : rowStyles.borderBottom}
+                                    >
                                         <Text textStyle="sm">{friend.name}</Text>
                                         <Spacer/>
                                         <Button 
@@ -202,7 +303,7 @@ function Home(){
                                 ))
                             }
                             {
-                                requests.sentRequests.length === 0 && <Box {...rowStyles}>
+                                friendRequests.sentRequests.length === 0 && <Box {...rowStyles} borderWidth="0px">
                                     <Text textStyle="sm">None</Text>
                                 </Box>
                             }
@@ -213,8 +314,12 @@ function Home(){
                         <Text textStyle="md">My Received Requests</Text>
                         <Box {...boxStyles}>
                             {
-                                requests.receivedRequests.map((friend, i) => (
-                                    <HStack {...rowStyles(i)} key={i}>
+                                friendRequests.receivedRequests.map((friend, i) => (
+                                    <HStack 
+                                        {...rowStyles} 
+                                        key={i} 
+                                        borderBottom={i === friendRequests.receivedRequests.length - 1 ? "0px" : rowStyles.borderBottom}
+                                    >
                                         <Text textStyle="sm">{friend.name}</Text>
                                         <Spacer/>
                                         <Button 
@@ -228,7 +333,7 @@ function Home(){
                                 ))
                             }
                             {
-                                requests.receivedRequests.length === 0 && <Box {...rowStyles}>
+                                friendRequests.receivedRequests.length === 0 && <Box {...rowStyles} borderWidth="0px">
                                     <Text textStyle="sm">None</Text>
                                 </Box>
                             }
@@ -242,6 +347,114 @@ function Home(){
             <Box>
                 <Predict/>
             </Box>
+            <Flex {...headerStyles} direction={["column", "column", "row"]} align={["stretch", "stretch", "flex-end"]}>
+                <Text textStyle="lg">Leagues</Text>
+                <Spacer/>
+                <Flex direction={["column", "column", "row"]} spaceX="10px" align={["center", "center", "flex-end"]}>
+                    <Text whiteSpace="nowrap">Add League</Text>
+                    <Flex align="stretch" h="30px" marginBottom="2px">
+                        <Input 
+                            {...inputStyles}
+                            h = "auto"
+                            w = "200px"
+                            placeholder="Ask for a league code"
+                            value = { leagueCode }
+                            onChange = {(e) => setLeagueCode(e.target.value)}
+                        />
+                        <Button {...buttonStyles } h="auto" bgColor="blue.400" onClick={() => sendLeagueRequest()}>
+                            Send
+                        </Button>
+                    </Flex>
+                </Flex>
+            </Flex>
+            <SimpleGrid columns={[1, 2]} gap="5">
+                <Box>
+                    <Text textStyle="md">My Leagues</Text>
+                    <Box {...boxStyles}>
+                        {
+                            leagues.map((league, i) => (
+                                <HStack 
+                                    {...rowStyles} 
+                                    key={league.id} 
+                                    borderBottom={i === leagues.length - 1 ? "0px" : rowStyles.borderBottom}
+                                >
+                                    <Text textStyle="sm">{league.name}</Text>
+                                    <Spacer/>
+                                    <Button {...buttonStyles} bgColor="red.500" onClick={() => removeLeague(league.id)}>
+                                        <Text fontSize="0.75rem">Remove</Text>
+                                    </Button>
+                                </HStack>
+                            ))
+                        }
+                        {
+                            leagues.length === 0 && <Box {...rowStyles} borderWidth="0px">
+                                <Text textStyle="sm">None</Text>
+                            </Box>
+                        }
+                    </Box>
+                </Box>
+                <Box spaceY="10px">
+                    <Box>
+                        <Text textStyle="md">League Invites</Text>
+                        <Box {...boxStyles}>
+                            {
+                                leagueInvites.map((league, i) => (
+                                    <HStack 
+                                        {...rowStyles} 
+                                        key={league.id} 
+                                        borderBottom={i === leagueInvites.length - 1 ? "0px" : rowStyles.borderBottom}
+                                    >
+                                        <Text textStyle="sm">{league.name}</Text>
+                                        <Spacer/>
+                                        <Button 
+                                            {...buttonStyles} 
+                                            bgColor="green.500"
+                                            onClick ={ () => acceptLeagueInvite(league.id) }
+                                        >
+                                            <Text fontSize="0.75rem">Add</Text>
+                                        </Button>
+                                    </HStack>
+                                ))
+                            }
+                            {
+                                leagueInvites.length === 0 && <Box {...rowStyles} borderWidth="0px">
+                                    <Text textStyle="sm">None</Text>
+                                </Box>
+                            }
+                        </Box>
+                    </Box>
+                    
+                    <Box>
+                        <Text textStyle="md">Pending League Requests</Text>
+                        <Box {...boxStyles}>
+                            {
+                                leagueRequests.map((league, i) => (
+                                    <HStack 
+                                        {...rowStyles} 
+                                        key={league.id} 
+                                        borderBottom={i === leagueRequests.length - 1 ? "0px" : rowStyles.borderBottom}
+                                    >
+                                        <Text textStyle="sm">{league.name}</Text>
+                                        <Spacer/>
+                                        <Button 
+                                            {...buttonStyles} 
+                                            bgColor="red.500"
+                                            onClick = {() => removeLeague(league.id)}
+                                        >
+                                            <Text fontSize="0.75rem">Withdraw</Text>
+                                        </Button>
+                                    </HStack>
+                                ))
+                            }
+                            {
+                                leagueRequests.length === 0 && <Box {...rowStyles} borderWidth="0px">
+                                    <Text textStyle="sm">None</Text>
+                                </Box>
+                            }
+                        </Box>
+                    </Box>
+                </Box>
+            </SimpleGrid>
         </Box>
     </Flex>
 }

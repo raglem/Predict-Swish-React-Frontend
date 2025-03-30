@@ -1,63 +1,26 @@
+import { useEffect, useState } from "react"
 import PredictCard from "../components/PredictCard"
 
 import { Box, Flex, SimpleGrid, Text, VStack } from "@chakra-ui/react"
+import api from "@/api"
 
 function Predict(){
-    const dummyData = [
-        {
-            date: '2025-02-01 00:00:00+00',
-            games: [
-                {
-                    awayTeam: "Hawks",
-                    homeTeam: "Celtics"
-                },
-                {
-                    awayTeam: "Hawks",
-                    homeTeam: "Celtics"
-                },
-                {
-                    awayTeam: "Celtics",
-                    homeTeam: "Celtics"
-                }
-            ]
-        },
-        {
-            date: '2025-02-02 00:00:00+00',
-            games: [
-                {
-                    awayTeam: "Hawks",
-                    homeTeam: "Hawks"
-                },
-                {
-                    awayTeam: "Celtics",
-                    homeTeam: "Hawks"
-                },
-            ]
-        },
-        // {
-        //     date: '2025-02-03 00:00:00+00',
-        //     games: [
-        //         {
-        //             awayTeam: "Hawks",
-        //             homeTeam: "Hawks"
-        //         },
-        //         {
-        //             awayTeam: "Celtics",
-        //             homeTeam: "Hawks"
-        //         },
-        //         {
-        //             awayTeam: "Hawks",
-        //             homeTeam: "Hawks"
-        //         },
-        //         {
-        //             awayTeam: "Celtics",
-        //             homeTeam: "Hawks"
-        //         },
-        //     ]
-        // },
-    ]
+    const [predictions, setPredictions] = useState([])
+    useEffect(() => {
+        getPredictions()
+    }, [])
+    async function getPredictions(){
+        try{
+            const response = await api.get('/predictions/')
+            setPredictions(response.data.data)
+            console.log(response)
+        }
+        catch(err){
+            console.log(err)
+        }
+    }
 
-    const maxColumns = getMaxColumns(dummyData)
+    const maxColumns = getMaxColumns(predictions)
     const columns = getColumns()
 
     function getMaxColumns(days){
@@ -84,15 +47,17 @@ function Predict(){
         return columns
     }
 
-    function formatDate(rawDate){
-        const date = new Date(rawDate)
-        return new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric" }).format(date);
+    function formatDate(dateString) {
+        const [year, month, day] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day); // month is 0-based
+        const options = { weekday: 'short', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
     }
 
     return <Flex direction="column" justify="stretch">
         <VStack>
         {
-            dummyData.map((day, i) => (
+            predictions.map((day, i) => (
                 <Box key={i} w="100%">
                     <Text textStyle="lg">{formatDate(day.date)}</Text>
                     <SimpleGrid 
@@ -102,7 +67,7 @@ function Predict(){
                     >
                         {day.games.map((game, j) => (
                             <PredictCard
-                                game={game}
+                                predictionProp={game}
                                 key={j}
                             />
                             
