@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 
 import api from "../api"
 import Select from "../components/Select"
+import { useNotification } from "@/components/Notification"
 
 import { Box, Button, Flex, Group, HStack, Input, SimpleGrid, Spacer, Text, VStack } from "@chakra-ui/react"
 import { Field } from "@/components/ui/field"
@@ -10,42 +11,91 @@ import { MdInfoOutline } from "react-icons/md";
 
 import { teams } from "../assets/appInfo"
 
-function UpdateLeague(){
-    const [gameDetails, setGameDetails] = useState({
+import { useParams } from "react-router-dom";
+
+function UpdateLeague() {
+    const { leagueId } = useParams();
+    const [original, setOriginal] = useState({
+        id: '',
         name: '',
         mode: '',
         team: '',
+        join_code: '',
+        member_players: [],
+        invited_players: [],
+        requesting_players: [],
     })
-    const [friends, setFriends] = useState([])
+    const [league, setLeague] = useState({
+        id: '',
+        name: '',
+        mode: '',
+        team: '',
+        join_code: '',
+        member_players: [],
+        invited_players: [],
+        requesting_players: [],
+    });
+    const [friends, setFriends] = useState([]);
+    const { showNotification } = useNotification()
 
     useEffect(() => {
-        getFriends()
-    }, [])
+        getFriends();
+        if (leagueId) {
+            fetchLeagueDetails();
+        }
+    }, [leagueId]);
 
-    async function getFriends(){
+    async function getFriends() {
+        try {
+            const response = await api.get(`/players/`);
+            setFriends(response.data.data.friends);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function fetchLeagueDetails() {
+        try {
+            const response = await api.get(`/leagues/${leagueId}`);
+            let rawLeague = response.data.data
+            rawLeague = {
+                ...rawLeague,
+                mode: rawLeague.mode.charAt(0).toUpperCase() + rawLeague.mode.substring(1)
+            }
+            setLeague(rawLeague);
+            setOriginal(rawLeague)
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    async function updateLeague(){
         try{
-            const response = await api.get(`/players/`)
-            setFriends(response.data.data.friends)
+            const response = await api.patch(`/leagues/update/${leagueId}`, {
+                name: league.name,
+                mode: league.mode,
+                team: league.team
+            })
+            showNotification(`${league.name} league successfully updated`)
         }
         catch(err){
-            console.log(err)
+            showNotification('Something went wrong. Please try again')
+            console.error(err)
         }
     }
 
-    const handleGameDetailsChange = (detail, option) => {
-        setGameDetails({
-            ...gameDetails,
-            [detail]: option
-        })
-        console.log(gameDetails)
-    }
+    const handleLeagueDetailsChange = (detail, option) => {
+        setLeague({
+            ...league,
+            [detail]: option,
+        });
+    };
 
     const formContainerStyles = {
         w: "80vw",
         maxW: "768px",
-        align:"stretch",
-        spaceY:"20px"
-    }
+        align: "stretch",
+        spaceY: "20px",
+    };
     const boxStyles = {
         p: "10px",
         paddingBottom: "15px",
@@ -53,8 +103,8 @@ function UpdateLeague(){
         borderRadius: "5px",
         borderStyle: "solid",
         borderWidth: "1px",
-        borderColor: "blue.400"
-    }
+        borderColor: "blue.400",
+    };
     const buttonStyles = {
         h: "fit-content",
         w: "80px",
@@ -84,7 +134,11 @@ function UpdateLeague(){
         <VStack {...formContainerStyles}>
             <Flex {...headerStyles}>
                 <Text textStyle="lg">
-                    Update League
+                    Update League | {original.name}
+                </Text>
+                <Spacer/>
+                <Text textStyle="lg">
+                    Join Code: {original.join_code}
                 </Text>
             </Flex>
 
@@ -95,7 +149,8 @@ function UpdateLeague(){
                         {...inputStyles} 
                         size="xs"
                         placeholder="Enter a custom league name" 
-                        onChange={(e) => handleGameDetailsChange("name", e.target.value)}
+                        value={league.name}
+                        onChange={(e) => handleLeagueDetailsChange("name", e.target.value)}
                     />
                 </Box>
                 <Select 
@@ -104,8 +159,8 @@ function UpdateLeague(){
                     info={"Choose between classic or team mode"}
                     placeholder="Select mode"
                     options={["Classic", "Team"]}
-                    selected={gameDetails.mode}
-                    onSelect={handleGameDetailsChange}
+                    selected={league.mode}
+                    onSelect={handleLeagueDetailsChange}
                 >
                 </Select>
                 <Select 
@@ -113,11 +168,17 @@ function UpdateLeague(){
                     detail="team"
                     placeholder="Select team"
                     options={teams}
-                    selected={gameDetails.team}
-                    onSelect={handleGameDetailsChange}
+                    selected={league.team}
+                    onSelect={handleLeagueDetailsChange}
                 >
                 </Select>
             </VStack>
+
+            <Flex justify="flex-end">
+                <Button {...buttonStyles} w="40vw" maxW="200px" onClick={() => updateLeague()}>
+                    <Text textStyle="md">Update</Text>
+                </Button>
+            </Flex>
 
             <VStack align="stretch">
                 <Flex direction={["column", "row"]} spaceX={["0", "20px"]}>
@@ -193,13 +254,12 @@ function UpdateLeague(){
                     }
                 </Box>
             </Box>
-
             <Flex justify="flex-end">
                 <Button {...buttonStyles} w="40vw" maxW="200px">
-                    <Text textStyle="md">Create</Text>
+                    <Text textStyle="md">Exit</Text>
                 </Button>
             </Flex>
         </VStack>
     </Flex>
 }
-export default CreateLeague
+export default UpdateLeague

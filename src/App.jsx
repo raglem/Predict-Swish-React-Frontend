@@ -9,6 +9,7 @@ import Games from "./pages/Games"
 import Predict from "./pages/Predict"
 import Leagues from "./pages/Leagues"
 import CreateLeague from "./pages/CreateLeague"
+import UpdateLeague from "./pages/UpdateLeague"
 import Notifications from "./pages/Notifications"
 import ProtectedRoute from "./components/ProtectedRoute"
 
@@ -62,6 +63,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CreateLeague />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leagues/update/:leagueId"
+            element={
+              <ProtectedRoute>
+                <UpdateLeague />
               </ProtectedRoute>
             }
           />

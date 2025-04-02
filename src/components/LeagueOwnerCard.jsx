@@ -1,9 +1,13 @@
+import { useNavigate } from "react-router-dom";
+
 import { Box, Button, Flex, Icon, SimpleGrid, Text } from "@chakra-ui/react"
 import { FaUserFriends, FaCheck } from "react-icons/fa";
 import { CiSquareRemove } from "react-icons/ci";
 
-function LeagueOwnerCard(){
+function LeagueOwnerCard({info}){
+    const navigate = useNavigate()
     const league = {
+        id: '67d736bbcb27b3e94bc0b77e',
         name: "League 1",
         mode: "Team",
         team: "Lakers",
@@ -36,7 +40,7 @@ function LeagueOwnerCard(){
                 <Box>
                     {league.name} | {league.mode} Mode { league.mode === 'Team' ? `| ${league.team}` : null}
                 </Box>
-                <Button h="fit-content" bgColor="red.500">
+                <Button h="fit-content" bgColor="red.500" onClick={() => navigate(`/leagues/update/${league.id}`)}>
                     Open
                 </Button>
             </Flex>
