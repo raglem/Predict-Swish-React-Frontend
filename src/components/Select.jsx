@@ -6,7 +6,7 @@ import { Field } from "@/components/ui/field"
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 import { MdInfoOutline } from "react-icons/md";
 
-function Select({label, detail, info, placeholder, selected, options, onSelect}){
+function Select({label, detail, info, placeholder, selected, disabled, options, onSelect}){
     const [isFocused, setIsFocused] = useState(false)
     const selectRef = useRef(null)
     const selectListRef = useRef(null)
@@ -26,8 +26,10 @@ function Select({label, detail, info, placeholder, selected, options, onSelect})
     }, []);
 
     function handleOptionChange(option){
-        onSelect(detail, option)
-        setIsFocused(false)
+        if(!disabled){
+            onSelect(detail, option)
+            setIsFocused(false)
+        }
     }
 
     const inputStyle={
@@ -68,7 +70,7 @@ function Select({label, detail, info, placeholder, selected, options, onSelect})
         <Box 
             {...inputStyle} 
             borderColor={isFocused ? "blue.400" : "gray.200"} 
-            onClick={() => setIsFocused(!isFocused)}
+            onClick={() => setIsFocused(!disabled ? !isFocused: false)}
             ref={selectRef}
         >
             <HStack>
@@ -77,7 +79,7 @@ function Select({label, detail, info, placeholder, selected, options, onSelect})
                 <Icon 
                     as={isFocused ? FaCaretUp : FaCaretDown}
                     _hover={{
-                        cursor: "pointer"
+                        cursor: disabled ? "not-allowed": "pointer"
                     }}
                 />
             </HStack>
