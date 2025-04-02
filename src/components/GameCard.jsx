@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Flex, Group, HStack, Icon, Image, Spacer, Text, useBreakpointValue } from "@chakra-ui/react"
@@ -5,52 +6,28 @@ import { FaUserFriends } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
 import { MdDone, MdDoneOutline } from "react-icons/md";
 
-function GameCard(){
-    const dummyData = {
-        league: 'Hoopers',
-        awayTeam: 'Hawks',
-        homeTeam: 'Celtics',
-        awayTeamWins: '42',
-        awayTeamLosses: '40',
-        homeTeamWins: '42',
-        homeTeamLosses: '40',
-        date: '2018-10-17 00:00:00+00',
-        friends: [
-            {
-                name: 'bobby',
-                mutualFriend: true,
-                predicted: false
-            },
-            {
-                name: 'johnny',
-                mutualFriend: false,
-                predicted: true
-            },
-            {
-                name: 'danny',
-                mutualFriend: true,
-                predicted: true
-            },
-        ]
-    }
-
+function GameCard({game}){
     const navigate = useNavigate()
     const isMobile = useBreakpointValue({base: true, md: false})
 
-    const game = formatGame(dummyData)
-
     const images = import.meta.glob("../assets/logos/*.png", { eager: true });
-    const getImage = (team) => images[`../assets/logos/Bulls.png`]?.default;
-    const team = game.homeTeam;
+    const getImage = (team) => images[`../assets/logos/${team}.png`]?.default;
+    const formatDate = (rawDate) => {
+        try{
+            const date = new Date(rawDate)
+            return new Intl.DateTimeFormat("en-US", { month: "numeric", day: "numeric" }).format(date);
+        }
+        catch{
+            return ""
+        }
+    }
 
-    function formatGame(data){
-        const date = new Date(data.date)
-        const formattedDate = new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric" }).format(date);
-        return {
-            ...data,
-            awayTeamRecord: `${data.awayTeamWins}-${data.awayTeamLosses}`,
-            homeTeamRecord: `${data.homeTeamWins}-${data.homeTeamLosses}`,
-            date: formattedDate,
+    const checkLength = (team) => {
+        if(team === "Timberwolves"){
+            return "T-Wolves"
+        }
+        else{
+            return team
         }
     }
 
@@ -90,39 +67,33 @@ function GameCard(){
                 </Box>
                 <HStack paddingBottom="5px">
                     <Flex direction="column" justify="center">
-                        <Image src={ getImage(game.awayTeam )}/>
-                        <Text textAlign="center">{game.awayTeam}</Text>
-                        <Text textAlign="center">{game.awayTeamRecord}</Text>
+                        <Image src={ getImage(game.away_team )} maxW="100%"/>
+                        <Text textAlign="center">{checkLength(game.away_team)}</Text>
                     </Flex>
                     <Text>vs</Text>
                     <Flex direction="column" justify="center">
-                        <Image src={ getImage(game.homeTeam )}/>
-                        <Text textAlign="center">{game.homeTeam}</Text>
-                        <Text textAlign="center">{game.homeTeamRecord}</Text>
+                        <Image src={ getImage(game.home_team )} maxW="100%"/>
+                        <Text textAlign="center">{checkLength(game.home_team)}</Text>
                     </Flex>
                 </HStack>
                 <HStack>
-                    <Text textStyle="sm">{game.date}</Text>
+                    <Text textStyle="sm">{formatDate(game.date)}</Text>
                     <Spacer />
                     <Flex direction={isMobile ? "column": "row"} gap="2">
                         <Button {...buttonStyles} bgColor="green.500" onClick={() => navigate('/home')}>
                             Predict
-                        </Button>
-                        <Button {...buttonStyles} bgColor="red.500">
-                            Withdraw
                         </Button>
                     </Flex>
                 </HStack>
             </Box>
             <Box {...leaderboardCardStyles} flex="1">
                 {
-                    game.friends.map((friend, i) => (
+                    game.predictions.map((member, i) => (
                         <HStack key={i}>
-                            <Text>{friend.name}</Text>
+                            <Text>{member.username}</Text>
                             <Spacer />
                             <Group>
-                                {friend.mutualFriend && <Icon as={FaUserFriends}/>}
-                                {friend.predicted ? <Icon as={MdDoneOutline}/> : <Icon as={IoMdTime}/>}
+                                {member.status !== 'Pending' ? <Icon as={MdDoneOutline}/> : <Icon as={IoMdTime}/>}
                             </Group>
                         </HStack>
                     ))
