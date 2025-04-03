@@ -1,14 +1,17 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import { useNavigate } from "react-router-dom";
+
+import { UserContext } from "../context/CurrentUser"
 
 import { Box, Button, Flex, Group, HStack, Icon, Image, Spacer, Text, useBreakpointValue } from "@chakra-ui/react"
 import { FaUserFriends } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
 import { MdDone, MdDoneOutline } from "react-icons/md";
 
-function GameCard({game}){
+function GameCard({upcoming, recent, game}){
     const navigate = useNavigate()
     const isMobile = useBreakpointValue({base: true, md: false})
+    const { user } = useContext(UserContext)
 
     const images = import.meta.glob("../assets/logos/*.png", { eager: true });
     const getImage = (team) => images[`../assets/logos/${team}.png`]?.default;
@@ -80,15 +83,20 @@ function GameCard({game}){
                     <Text textStyle="sm">{formatDate(game.date)}</Text>
                     <Spacer />
                     <Flex direction={isMobile ? "column": "row"} gap="2">
-                        <Button {...buttonStyles} bgColor="green.500" onClick={() => navigate('/home')}>
-                            Predict
-                        </Button>
+                        {
+                            upcoming && <Button {...buttonStyles} bgColor="green.500" onClick={() => navigate('/home')}>
+                                Predict
+                            </Button>
+                        }
+                        {
+                            recent && <Text>{ game.predictions.find(prediction => prediction.username === user).score }</Text>
+                        }
                     </Flex>
                 </HStack>
             </Box>
             <Box {...leaderboardCardStyles} flex="1">
                 {
-                    game.predictions.map((member, i) => (
+                    upcoming && game.predictions.map((member, i) => (
                         <HStack key={i}>
                             <Text>{member.username}</Text>
                             <Spacer />
@@ -96,6 +104,15 @@ function GameCard({game}){
                                 {member.status !== 'Pending' ? <Icon as={MdDoneOutline}/> : <Icon as={IoMdTime}/>}
                             </Group>
                         </HStack>
+                    ))
+                }
+                {
+                    recent && game.predictions.map((member, i) => (
+                        <Flex key={i} borderBottom="1px solid white">
+                            <Text>{i+1}. {member.username}</Text>
+                            <Spacer />
+                            <Text> {member.score} </Text>
+                        </Flex>
                     ))
                 }
             </Box>
