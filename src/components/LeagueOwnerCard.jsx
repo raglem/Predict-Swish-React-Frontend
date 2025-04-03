@@ -31,19 +31,11 @@ function LeagueOwnerCard({info}){
         <Flex
             direction="column"
             w="100%"
-            maxW="400px" 
+            maxW="768px" 
             p="10px"
             bgColor="blue.400"
             borderRadius="10px"
         >
-            <Flex direction="row" justify="space-between" align="center" borderBottom="1px solid white" textStyle="lg">
-                <Box>
-                    {league.name} | {league.mode} Mode { league.mode === 'Team' ? `| ${league.team}` : null}
-                </Box>
-                <Button h="fit-content" bgColor="red.500" onClick={() => navigate(`/leagues/update/${league.id}`)}>
-                    Open
-                </Button>
-            </Flex>
             <SimpleGrid 
                 columns={2} 
                 w="100%"

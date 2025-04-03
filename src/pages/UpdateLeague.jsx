@@ -365,7 +365,10 @@ function UpdateLeague() {
                 </Flex>
             </VStack>
             
-            <Flex justify="flex-end">
+            <Flex justify="flex-end" spaceX="20px">
+                <Button {...buttonStyles} bgColor="red.500" w="40vw" maxW="200px">
+                    <Text textStyle="md" onClick={() => navigate('/leagues/')}>Delete</Text>
+                </Button>
                 <Button {...buttonStyles} w="40vw" maxW="200px">
                     <Text textStyle="md" onClick={() => navigate('/leagues/')}>Exit</Text>
                 </Button>
