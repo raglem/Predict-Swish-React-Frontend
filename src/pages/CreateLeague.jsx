@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 
 import api from "../api"
+import Form from "../components/Form"
 import Select from "../components/Select"
 import { useNotification } from "../components/Notification.jsx"
 
@@ -124,7 +125,7 @@ function CreateLeague(){
             }
         }
     }
-    return <Flex direction="column" w="100vw" p="10px" align="center">
+    return <Form>
         <VStack {...formContainerStyles}>
             <Flex {...headerStyles}>
                 <Text textStyle="lg">
@@ -191,6 +192,6 @@ function CreateLeague(){
                 </Button>
             </Flex>
         </VStack>
-    </Flex>
+    </Form>
 }
 export default CreateLeague

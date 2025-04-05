@@ -234,7 +234,7 @@ function Home(){
     return <Flex direction="column" w="100vw" align="center">
         <Box p="10px" justify="center" spaceY="20px">
             <Flex {...headerStyles} direction={["column", "column", "row"]} align={["stretch", "stretch", "flex-end"]}>
-                <Text textStyle="lg">Friends</Text>
+                <Text textStyle="2xl">Friends</Text>
                 <Spacer/>
                 <Flex direction={["column", "column", "row"]} spaceX="10px" align={["center", "center", "flex-end"]}>
                     <Text whiteSpace="nowrap">Add Friend</Text>
@@ -341,14 +341,11 @@ function Home(){
                     </Box>
                 </Box>
             </SimpleGrid>
-            <Flex {...headerStyles}>
-                <Text textStyle="lg">Pick Schedule</Text>
-            </Flex>
             <Box>
                 <Predict/>
             </Box>
             <Flex {...headerStyles} direction={["column", "column", "row"]} align={["stretch", "stretch", "flex-end"]}>
-                <Text textStyle="lg">Leagues</Text>
+                <Text textStyle="2xl">Leagues</Text>
                 <Spacer/>
                 <Flex direction={["column", "column", "row"]} spaceX="10px" align={["center", "center", "flex-end"]}>
                     <Text whiteSpace="nowrap">Add League</Text>

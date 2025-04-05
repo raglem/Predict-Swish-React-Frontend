@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react"
 import PredictCard from "../components/PredictCard"
+import RecentPredictCard from "../components/RecentPredictCard.jsx"
 
 import { Box, Flex, SimpleGrid, Text, VStack } from "@chakra-ui/react"
 import api from "@/api"
 
 function Predict(){
-    const [predictions, setPredictions] = useState([])
+    const [upcomingPredictions, setUpcomingPredictions] = useState([])
+    const [recentPredictions, setRecentPredictions] = useState([])
     useEffect(() => {
         getPredictions()
     }, [])
     async function getPredictions(){
         try{
             const response = await api.get('/predictions/')
-            setPredictions(response.data.data)
+            setUpcomingPredictions(response.data.upcoming_predictions)
+            setRecentPredictions(response.data.recent_predictions)
             console.log(response)
         }
         catch(err){
@@ -20,7 +23,7 @@ function Predict(){
         }
     }
 
-    const maxColumns = getMaxColumns(predictions)
+    const maxColumns = getMaxColumns(upcomingPredictions)
     const columns = getColumns()
 
     function getMaxColumns(days){
@@ -54,10 +57,11 @@ function Predict(){
         return date.toLocaleDateString('en-US', options);
     }
 
-    return <Flex direction="column" justify="stretch">
+    return <Flex direction="column" justify="stretch" spaceY="10px">
+        <Box textStyle="2xl" borderBottom="1px solid black">Upcoming Predictions</Box>
         <VStack>
         {
-            predictions.map((day, i) => (
+            upcomingPredictions.map((day, i) => (
                 <Box key={i} w="100%">
                     <Text textStyle="lg">{formatDate(day.date)}</Text>
                     <SimpleGrid 
@@ -67,6 +71,30 @@ function Predict(){
                     >
                         {day.games.map((game, j) => (
                             <PredictCard
+                                predictionProp={game}
+                                key={j}
+                            />
+                            
+                        ))}
+                    </SimpleGrid>
+                </Box>
+            ))
+        }
+        </VStack>
+        <br/>
+        <Box textStyle="2xl" borderBottom="1px solid black">Recent Predictions</Box>
+        <VStack>
+        {
+            recentPredictions.map((day, i) => (
+                <Box key={i} w="100%">
+                    <Text textStyle="lg">{formatDate(day.date)}</Text>
+                    <SimpleGrid 
+                        columns={columns}
+                        maxW="1200px"
+                        gap="0"
+                    >
+                        {day.games.map((game, j) => (
+                            <RecentPredictCard
                                 predictionProp={game}
                                 key={j}
                             />
