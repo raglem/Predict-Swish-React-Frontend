@@ -7,8 +7,8 @@ function Form({ children }){
         borderColor: "blue.400",
         borderRadius: "10px"
     }
-    return <Flex h="100vh" w="100vw" justify="center" align="center">
-        <Flex direction="column" p="20px" maxW="1024px" {...border}>
+    return <Flex h="100vh" minH="800px" w="100vw" justify="center" align="center" overflowY="scroll">
+        <Flex direction="column" justify="stretch" w="80vw" maxW="1024px" p="20px" spaceY="20px" {...border}>
             {children}
         </Flex>
     </Flex>

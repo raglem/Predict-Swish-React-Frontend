@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom";
 
 import api from "../api"
+import Form from "../components/Form";
 import Select from "../components/Select"
 import { useNotification } from "@/components/Notification"
 
@@ -132,13 +133,6 @@ function UpdateLeague() {
         if (league.requesting_players.some(player => player.id === friendId)) return { label: "Requesting", color: "gray.500" };
         return null;
     };
-
-    const formContainerStyles = {
-        w: "80vw",
-        maxW: "768px",
-        align: "stretch",
-        spaceY: "20px",
-    };
     const boxStyles = {
         p: "10px",
         paddingBottom: "15px",
@@ -184,8 +178,7 @@ function UpdateLeague() {
             }
         }
     }
-    return <Flex direction="column" w="100vw" p="10px" align="center" spaceY="20px">
-        <VStack {...formContainerStyles}>
+    return <Form>
             <Flex {...headerStyles}>
                 <Text textStyle="lg">
                     Update League | {original.name}
@@ -366,14 +359,13 @@ function UpdateLeague() {
             </VStack>
             
             <Flex justify="flex-end" spaceX="20px">
-                <Button {...buttonStyles} bgColor="red.500" w="40vw" maxW="200px">
+                <Button {...buttonStyles} bgColor="red.500" w="40%" maxW="200px">
                     <Text textStyle="md" onClick={() => navigate('/leagues/')}>Delete</Text>
                 </Button>
-                <Button {...buttonStyles} w="40vw" maxW="200px">
+                <Button {...buttonStyles} w="40%" maxW="200px">
                     <Text textStyle="md" onClick={() => navigate('/leagues/')}>Exit</Text>
                 </Button>
             </Flex>
-        </VStack>
-    </Flex>
+        </Form>
 }
 export default UpdateLeague

@@ -85,12 +85,6 @@ function CreateLeague(){
         }
     }
 
-    const formContainerStyles = {
-        w: "80vw",
-        maxW: "768px",
-        align:"stretch",
-        spaceY:"20px"
-    }
     const boxStyles = {
         p: "10px",
         paddingBottom: "15px",
@@ -126,72 +120,70 @@ function CreateLeague(){
         }
     }
     return <Form>
-        <VStack {...formContainerStyles}>
-            <Flex {...headerStyles}>
-                <Text textStyle="lg">
-                    Create League
-                </Text>
-            </Flex>
+        <Flex {...headerStyles}>
+            <Text textStyle="lg">
+                Create League
+            </Text>
+        </Flex>
 
-            <VStack>
-                <Box w="100%">
-                    <Text textStyle="sm">Name</Text>
-                    <Input 
-                        {...inputStyles} 
-                        size="xs"
-                        placeholder="Enter a custom league name" 
-                        onChange={(e) => handleGameDetailsChange("name", e.target.value)}
-                    />
-                </Box>
-                <Select 
-                    label="Mode" 
-                    detail="mode"
-                    info={"Choose between classic or team mode"}
-                    placeholder="Select mode"
-                    options={["Classic", "Team"]}
-                    selected={gameDetails.mode}
-                    onSelect={handleGameDetailsChange}
-                >
-                </Select>
-                <Select 
-                    label="Team" 
-                    detail="team"
-                    placeholder="Select team"
-                    options={teams}
-                    selected={gameDetails.team}
-                    onSelect={handleGameDetailsChange}
-                >
-                </Select>
-            </VStack>
-
-            <Box>
-                <Flex>
-                    <Text textStyle="md">Invite Friends</Text>
-                </Flex>
-                <Flex {...boxStyles} direction="column" spaceY="10px">
-                    {
-                        friends.map((friend, i) => (
-                            <HStack align="stretch" borderStyle="solid" borderBottomWidth="1px" borderColor="blue.400" key={i}>
-                                <Flex align="flex-end">
-                                    <Text textStyle="sm">{friend.name}</Text>
-                                </Flex>
-                                <Spacer/>
-                                <input 
-                                    type="checkbox"
-                                    onChange = {(e) => handleInvitedPlayersChange(e, friend.id)}
-                                />
-                            </HStack>
-                        ))
-                    }
-                </Flex>
+        <VStack>
+            <Box w="100%">
+                <Text textStyle="sm">Name</Text>
+                <Input 
+                    {...inputStyles} 
+                    size="xs"
+                    placeholder="Enter a custom league name" 
+                    onChange={(e) => handleGameDetailsChange("name", e.target.value)}
+                />
             </Box>
-
-            <Flex justify="flex-end">
-                <Button {...buttonStyles} w="40vw" maxW="200px" onClick={createLeague}>
-                    <Text textStyle="md">Create</Text>
-                </Button>
-            </Flex>
+            <Select 
+                label="Mode" 
+                detail="mode"
+                info={"Choose between classic or team mode"}
+                placeholder="Select mode"
+                options={["Classic", "Team"]}
+                selected={gameDetails.mode}
+                onSelect={handleGameDetailsChange}
+            >
+            </Select>
+            <Select 
+                label="Team" 
+                detail="team"
+                placeholder="Select team"
+                options={teams}
+                selected={gameDetails.team}
+                onSelect={handleGameDetailsChange}
+            >
+            </Select>
         </VStack>
+
+        <Box>
+            <Flex>
+                <Text textStyle="md">Invite Friends</Text>
+            </Flex>
+            <Flex {...boxStyles} direction="column" spaceY="10px">
+                {
+                    friends.map((friend, i) => (
+                        <HStack align="stretch" borderStyle="solid" borderBottomWidth="1px" borderColor="blue.400" key={i}>
+                            <Flex align="flex-end">
+                                <Text textStyle="sm">{friend.name}</Text>
+                            </Flex>
+                            <Spacer/>
+                            <input 
+                                type="checkbox"
+                                onChange = {(e) => handleInvitedPlayersChange(e, friend.id)}
+                            />
+                        </HStack>
+                    ))
+                }
+            </Flex>
+        </Box>
+
+        <Flex justify="flex-end">
+            <Button {...buttonStyles} w="40vw" maxW="200px" onClick={createLeague}>
+                <Text textStyle="md">Create</Text>
+            </Button>
+        </Flex>
     </Form>
 }
 export default CreateLeague

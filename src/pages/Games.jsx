@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 
 import api from "../api";
+import Chat from "../pages/Chat"
 import GameCard from "../components/GameCard";
 import { useNotification } from "../components/Notification";
 
@@ -9,6 +10,13 @@ import { Box, Flex, SimpleGrid, Text } from "@chakra-ui/react";
 function Games() {
     const [upcomingGames, setUpcomingGames] = useState([])
     const [recentGames, setRecentGames] = useState([])
+    const [activeChatGameId, setActiveChatGameId] = useState(null)
+    const [activeChatGameInfo, setActiveChatGameInfo] = useState({
+        leagueName: "",
+        awayTeam: "",
+        homeTeam: "",
+    })
+    const [showChat, setShowChat] = useState(false)
     const [loading, setLoading] = useState(false)
     const { showNotification } = useNotification()
 
@@ -31,46 +39,89 @@ function Games() {
             setLoading(false)
         }
     }
-    return (
-        <Flex direction="column" w="100vw" align="center">
-            <Flex direction="column" p="10px" justify="center" minW="80vw" spaceY="10px">
-                <Flex justify="stretch" borderBottom="1px solid black">
-                    <Text textStyle="lg">Upcoming Games</Text>
-                </Flex>
-                <Flex justify="center">
-                    <SimpleGrid 
-                        columns={[1, 1, 2, 2, 3]} 
-                        gap={4}
-                        minW="100%"
-                    >
-                        {
-                            upcomingGames.map((game, i) => (
-                                <GameCard upcoming={true} game={game} key={i}/>
-                            ))
-                        }
-                    </SimpleGrid>
-                </Flex>
-            </Flex>
-            <Flex direction="column" p="10px" justify="center" minW="80vw" spaceY="10px">
-                <Flex justify="stretch" borderBottom="1px solid black">
-                    <Text textStyle="lg">Recent Games</Text>
-                </Flex>
-                <Flex justify="center">
-                    <SimpleGrid 
-                        columns={[1, 1, 2, 2, 3]} 
-                        gap={4}
-                        minW="100%"
-                    >
-                        {
-                            recentGames.map((game, i) => (
-                                <GameCard recent={true} game={game} key={i}/>
-                            ))
-                        }
-                    </SimpleGrid>
-                </Flex>
-            </Flex>
+    async function handleChat(game){
+        if(!showChat){
+            setShowChat(true)
+            setActiveChatGameId(game.id)
 
-            
+            const currentGame = upcomingGames.find((game) => game.id === game.id) || recentGames.find((game) => game.id === game.id)
+            setActiveChatGameInfo({
+                leagueName: currentGame.league,
+                awayTeam: currentGame.away_team,
+                homeTeam: currentGame.home_team,
+            })
+        }
+        else{
+            setShowChat(false)
+            setActiveChatGameId(null)
+        }
+    }
+    return (
+        <Flex direction="row" h="100vh" w="100vw" overflow="hidden">
+            <Flex 
+                direction="column" 
+                h="100vh" 
+                w={ showChat ? "70vw" : "100vw" } 
+                align="center" 
+                overflowY="auto" 
+                marginRight={ showChat ? "30vw" : "0"}
+            > 
+                <Flex direction="column" p="10px" maxW="fit-content" align="center" spaceY="10px">
+                    <Flex w="100%" minW={ showChat ? "80%" : "80vw"} borderBottom="1px solid black">
+                        <Text textStyle="lg">Upcoming Games</Text>
+                    </Flex>
+                    <Flex justify="center" w="100%">
+                        <SimpleGrid 
+                            columns={[1, 1, 2, 2, 3]} 
+                            gap={4}
+                            minW="100%"
+                        >
+                            {
+                                upcomingGames.map((game, i) => (
+                                    <GameCard 
+                                        upcoming={true} 
+                                        game={game} 
+                                        handleChat={() => handleChat(game)}
+                                        key={i}
+                                    />
+                                ))
+                            }
+                        </SimpleGrid>
+                    </Flex>
+                </Flex>
+                <Flex direction="column" p="10px" maxW="fit-content" align="center" spaceY="10px">
+                    <Flex w="100%" minW={ showChat ? "80%" : "80vw"} borderBottom="1px solid black">
+                        <Text textStyle="lg">Recent Games</Text>
+                    </Flex>
+                    <Flex justify="center" w="100%">
+                        <SimpleGrid 
+                            columns={[1, 1, 2, 2, 3]} 
+                            gap={4}
+                            minW="100%"
+                        >
+                            {
+                                recentGames.map((game, i) => (
+                                    <GameCard recent={true} game={game} key={i}/>
+                                ))
+                            }
+                        </SimpleGrid>
+                    </Flex>
+                </Flex>  
+            </Flex>
+            <Flex
+                display={showChat ? "flex" : "none"} 
+                position="fixed"
+                top="50px"
+                right="0"
+                h="calc(100vh - 50px)"
+                w="30vw"
+            >
+                <Chat
+                    gameId={activeChatGameId}
+                    gameInfo={activeChatGameInfo}
+                    handleChat={handleChat}
+                />
+            </Flex>
         </Flex>
     );
 }

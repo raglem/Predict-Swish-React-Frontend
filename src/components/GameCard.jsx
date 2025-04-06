@@ -6,9 +6,10 @@ import { UserContext } from "../context/CurrentUser"
 import { Box, Button, Flex, Group, HStack, Icon, Image, Spacer, Text, useBreakpointValue } from "@chakra-ui/react"
 import { FaUserFriends } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
+import { IoChatboxEllipsesSharp } from "react-icons/io5";
 import { MdDone, MdDoneOutline } from "react-icons/md";
 
-function GameCard({upcoming, recent, game}){
+function GameCard({upcoming, recent, game, handleChat}){
     const navigate = useNavigate()
     const isMobile = useBreakpointValue({base: true, md: false})
     const { user } = useContext(UserContext)
@@ -65,9 +66,16 @@ function GameCard({upcoming, recent, game}){
     return <Box display="flex" w="fit-content">
         <HStack align="stretch" w="100%">
             <Box {...gameCardStyles}>
-                <Box borderBottom="1px solid white">
+                <Flex justify="space-between" align="center" borderBottom="1px solid white">
                     <Text textStyle="lg">{game.league}</Text>
-                </Box>
+                    <Icon 
+                        as={IoChatboxEllipsesSharp} 
+                        boxSize="5" 
+                        color="white"
+                        _hover={{ cursor: "pointer", color: "gray.300" }}
+                        onClick={() => handleChat()}
+                    />
+                </Flex>
                 <HStack paddingBottom="5px">
                     <Flex direction="column" justify="center">
                         <Image src={ getImage(game.away_team )} maxW="100%"/>
