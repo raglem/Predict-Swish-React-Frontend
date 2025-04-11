@@ -1,33 +1,84 @@
 import { useState, useEffect, useContext } from "react"
+import { io } from "socket.io-client";
 
+import api from "../api.js"
 import { UserContext } from "../context/CurrentUser";
 
 import { Box, Flex, Icon, Text } from "@chakra-ui/react";
 import { MdCloseFullscreen } from "react-icons/md";
 import { IoSend } from "react-icons/io5";
+import { ACCESS_TOKEN } from "@/constants.js";
 
-function Chat({gameId, gameInfo, handleChat}){
+function Chat({gameInfo, leagueInfo, handleChat}){
     const user = useContext(UserContext)
+    const [chatId, setChatId] = useState(null)
+    const [socket, setSocket] = useState(null)
     const [messages, setMessages] = useState([])
     const [newMessage, setNewMessage] = useState("")
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        setMessages([
-            { content: "Hello", sender: "Julian" },
-            { content: "Hello", sender: "Julian" },
-            { content: "Hello", sender: "username2" },
-        ])
-        console.log(user.user)
+        const handleEnterKey = (event) => {
+            if (event.key === 'Enter') {
+                sendMessage()
+            }
+        }
+
+        document.addEventListener('keydown', handleEnterKey)
+
+        return () => {
+            document.removeEventListener('keydown', handleEnterKey)
+        }
+    }, [sendMessage]);
+
+    useEffect(() => {
+        const newSocket = io(import.meta.env.VITE_API_URL, {
+            auth:{
+                token: localStorage.getItem(ACCESS_TOKEN)
+            }
+        })
+        newSocket.on('connect', () => {
+            fetchChat(newSocket)
+        })
+        newSocket.on('joined-room', (chat) => {
+            setLoading(false)
+            setChatId(chat.id)
+            console.log(chat.id)
+            setMessages(chat.messages.map(message => formatMessage(message)))
+        })
+        newSocket.on('failed-join-room', () => {
+            console.log("Could not join room")
+        })
+        newSocket.on('receive-message', (message) => {
+            setMessages((prevMessages) => [formatMessage(message), ...prevMessages])
+        })
+
+        setSocket(newSocket)
+
+        return(() => {
+            if (newSocket) {
+                newSocket.disconnect();
+            }
+        })
     }, [])
-    function sendMessage(){
-        setMessages([
-            {
-                content: newMessage,
-                sender: user.user
-            },
-        ...messages
-        ])
-        setNewMessage("")
+
+    function fetchChat(socket){
+        setLoading(true)
+        socket.emit('join-room', { gameId: gameInfo.id, leagueId: leagueInfo.id })
+    }
+
+    async function sendMessage(){
+        if(!loading && socket){
+            socket.emit('send-message', { chatId: chatId, message: newMessage })
+            setNewMessage('')
+        }
+
+    }
+    function formatMessage(message){
+        return{
+            sender: message.player_name,
+            content: message.content,
+        }
     }
     return <Flex direction="column" h="100%" w="100%" borderRadius="5px">
         <Flex 
@@ -40,7 +91,7 @@ function Chat({gameId, gameInfo, handleChat}){
             borderRadius="0px 0px 5px 5px"
         >
             <Text textStyle="md">
-                {`${gameInfo.leagueName} | ${gameInfo.awayTeam} vs ${gameInfo.homeTeam}`}
+                {`${leagueInfo.name} | ${gameInfo.awayTeam} vs ${gameInfo.homeTeam}`}
             </Text>
             <Icon
                 as={MdCloseFullscreen}
@@ -85,14 +136,14 @@ function Chat({gameId, gameInfo, handleChat}){
                     borderRadius: "5px",
                 }}
                 onChange={(e) => setNewMessage(e.target.value)}
+                disabled={loading}
             />
             <Icon 
                 as={IoSend} 
                 boxSize="6" 
-                color="blue.400" 
+                color={ !loading ? "blue.400" : "gray.300" } 
                 _hover={{
-                    cursor: "pointer",
-                    color: "gray.300"
+                    cursor: !loading ? "pointer" : "default",
                 }}
                 onClick={sendMessage}
             />

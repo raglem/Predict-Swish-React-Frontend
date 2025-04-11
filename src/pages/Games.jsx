@@ -10,11 +10,14 @@ import { Box, Flex, SimpleGrid, Text } from "@chakra-ui/react";
 function Games() {
     const [upcomingGames, setUpcomingGames] = useState([])
     const [recentGames, setRecentGames] = useState([])
-    const [activeChatGameId, setActiveChatGameId] = useState(null)
     const [activeChatGameInfo, setActiveChatGameInfo] = useState({
-        leagueName: "",
+        id: "",
         awayTeam: "",
         homeTeam: "",
+    })
+    const [activeChatLeagueInfo, setActiveChatLeagueInfo] = useState({
+        id: "",
+        name: ""
     })
     const [showChat, setShowChat] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -39,21 +42,30 @@ function Games() {
             setLoading(false)
         }
     }
-    async function handleChat(game){
+    async function handleChat(game, league){
         if(!showChat){
             setShowChat(true)
-            setActiveChatGameId(game.id)
-
-            const currentGame = upcomingGames.find((game) => game.id === game.id) || recentGames.find((game) => game.id === game.id)
             setActiveChatGameInfo({
-                leagueName: currentGame.league,
-                awayTeam: currentGame.away_team,
-                homeTeam: currentGame.home_team,
+                id: game.id,
+                awayTeam: game.away_team,
+                homeTeam: game.home_team
+            })
+            setActiveChatLeagueInfo({
+                id: league.id,
+                name: league.name
             })
         }
         else{
             setShowChat(false)
-            setActiveChatGameId(null)
+            setActiveChatGameInfo({
+                id: "",
+                awayTeam: "",
+                homeTeam: "",
+            })
+            setActiveChatLeagueInfo({
+                id: "",
+                name: "",
+            })
         }
     }
     return (
@@ -81,7 +93,7 @@ function Games() {
                                     <GameCard 
                                         upcoming={true} 
                                         game={game} 
-                                        handleChat={() => handleChat(game)}
+                                        handleChat={() => handleChat(game, game.league)}
                                         key={i}
                                     />
                                 ))
@@ -108,20 +120,21 @@ function Games() {
                     </Flex>
                 </Flex>  
             </Flex>
-            <Flex
-                display={showChat ? "flex" : "none"} 
-                position="fixed"
-                top="50px"
-                right="0"
-                h="calc(100vh - 50px)"
-                w="30vw"
-            >
-                <Chat
-                    gameId={activeChatGameId}
-                    gameInfo={activeChatGameInfo}
-                    handleChat={handleChat}
-                />
-            </Flex>
+            {
+                showChat && <Flex
+                    position="fixed"
+                    top="50px"
+                    right="0"
+                    h="calc(100vh - 50px)"
+                    w="30vw"
+                >
+                    <Chat
+                        gameInfo={activeChatGameInfo}
+                        leagueInfo={activeChatLeagueInfo}
+                        handleChat={handleChat}
+                    />
+                </Flex>
+            }
         </Flex>
     );
 }

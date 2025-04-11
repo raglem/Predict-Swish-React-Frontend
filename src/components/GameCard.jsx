@@ -67,7 +67,7 @@ function GameCard({upcoming, recent, game, handleChat}){
         <HStack align="stretch" w="100%">
             <Box {...gameCardStyles}>
                 <Flex justify="space-between" align="center" borderBottom="1px solid white">
-                    <Text textStyle="lg">{game.league}</Text>
+                    <Text textStyle="lg">{game.league.name}</Text>
                     <Icon 
                         as={IoChatboxEllipsesSharp} 
                         boxSize="5" 
