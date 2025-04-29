@@ -7,32 +7,45 @@ import LeagueOwnerCard from "../components/LeagueOwnerCard"
 import { useNotification } from "@/components/Notification"
 
 import { Box, Button, Flex, HStack, SimpleGrid, Text } from "@chakra-ui/react"
+import EmptyLeagueCard from "@/components/loading/EmptyLeagueCard"
+import EmptyLeagueOwnerCard from "@/components/loading/EmptyLeagueOwnerCard"
 
 function Leagues(){
     const navigate = useNavigate()
 
     const [leagues, setLeagues] = useState([])
     const [ownedLeagues, setOwnedLeagues] = useState([])
-    const [loading, setLoading] = useState(false)
-    const { showNotification } = useNotification
+    const [loadingLeagues, setLoadingLeagues] = useState(false)
+    const { showNotification } = useNotification()
 
     useEffect(() => {
         const fetchLeagues = async () => {
             try {
-                setLoading(true)
+                setLoadingLeagues(true)
                 const response = await api.get(`/leagues/`)
+                console.log(response.data)
                 setLeagues(response.data.leagues)
                 setOwnedLeagues(response.data.owned_leagues)
-                console.log(response.data.owned_leagues)
             } catch (err) {
                 showNotification('Something went wrong retrieving your leagues')
                 console.log(err)
             } finally {
-                setLoading(false)
+                setLoadingLeagues(false)
             }
         }
         fetchLeagues()
     }, [])
+
+    const getOwnedLeagueColumns = () => {
+        if (window.innerWidth < 480){
+            return 1
+        }
+        if (window.innerWidth < 768){
+            return 2
+        }
+        return 3
+    }
+
     const buttonStyles = {
         h: "fit-content",
         color: "white",
@@ -47,25 +60,39 @@ function Leagues(){
             <Flex borderBottom="1px solid black">
                 <Text textStyle="2xl">Owned Leagues</Text>
             </Flex>
-            <SimpleGrid columns={[1,1,1,2]} gap="20px">
-                {
-                    ownedLeagues.map((league) => {
-                        return <Box key={league.id}>
-                            <Flex justify="space-between" align="center">
-                                <Text textStyle="xl">{league.name} | {league.mode} {league.mode === 'Team' ? ' | ' + league.team : ''}</Text>
-                                <Button
-                                    {...buttonStyles} 
-                                    bgColor="red.500"
-                                    onClick={() => navigate(`/leagues/update/${league.id}`)}
-                                >
-                                    Open
-                                </Button>
-                            </Flex>
-                            <LeagueOwnerCard info={league}/>
-                        </Box>
-                    })
-                }
-            </SimpleGrid>
+            {
+                !loadingLeagues && <SimpleGrid columns={[1, 2, 3]} gap="20px">
+                    {
+                        ownedLeagues.map((league) => {
+                            return <Box w="fit-content" key={league.id}>
+                                <Flex justify="space-between" align="center">
+                                    <Text textStyle="xl">{league.name} | {league.mode} {league.mode === 'Team' ? ' | ' + league.team : ''}</Text>
+                                    <Button
+                                        {...buttonStyles} 
+                                        bgColor="red.500"
+                                        onClick={() => navigate(`/leagues/update/${league.id}`)}
+                                    >
+                                        Open
+                                    </Button>
+                                </Flex>
+                                <LeagueOwnerCard league={league}/>
+                            </Box>
+                        })
+                    }
+                </SimpleGrid>
+            }
+            {
+                loadingLeagues && <Flex direction="column" textStyle="xl">
+                    Loading...
+                    <Flex columnGap="20px">
+                        {
+                            Array.from({ length: getOwnedLeagueColumns() }).map((league, i) => (
+                                <EmptyLeagueOwnerCard key={i}/>
+                            ))
+                        }
+                    </Flex>
+                </Flex>
+            }
         </Flex>
         <Flex direction="column" align="stretch" w="100%" maxW="1024px" spaceY="20px">
             <Flex align="center" borderBottom="1px solid black" spaceX="20px">
@@ -76,7 +103,7 @@ function Leagues(){
             </Flex>
             <Flex direction="column" align="center" maxW="1440px" spaceY="20px">
                 {
-                    !loading && 
+                    !loadingLeagues && 
                     leagues.map((league) => {
                         return <LeagueCard
                             key={league.id}
@@ -85,9 +112,7 @@ function Leagues(){
                     })
                 }
                 {
-                    loading && <Box>
-                        <Text>Loading...</Text>
-                    </Box>
+                    loadingLeagues && <EmptyLeagueCard />
                 }
             </Flex>
         </Flex>

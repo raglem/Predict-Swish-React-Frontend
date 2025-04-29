@@ -4,14 +4,19 @@ import RecentPredictCard from "../components/RecentPredictCard.jsx"
 
 import { Box, Flex, SimpleGrid, Text, VStack } from "@chakra-ui/react"
 import api from "@/api"
+import EmptyPredictCard from "@/components/loading/EmptyPredictCard"
+import { clipPath } from "framer-motion/client"
 
 function Predict(){
     const [upcomingPredictions, setUpcomingPredictions] = useState([])
     const [recentPredictions, setRecentPredictions] = useState([])
+    const [loading, setLoading] = useState(false)
+
     useEffect(() => {
         getPredictions()
     }, [])
     async function getPredictions(){
+        setLoading(true)
         try{
             const response = await api.get('/predictions/')
             setUpcomingPredictions(response.data.upcoming_predictions)
@@ -20,6 +25,9 @@ function Predict(){
         }
         catch(err){
             console.log(err)
+        }
+        finally{
+            setLoading(false)
         }
     }
 
@@ -49,6 +57,9 @@ function Predict(){
         }
         return columns
     }
+    function getLoadingColumns(){
+        return window.innerWidth < 480 ? 1 : window.innerWidth < 768 ? 2 : window.innerWidth < 1024 ? 3 : 4
+    }
 
     function formatDate(dateString) {
         const [year, month, day] = dateString.split('-').map(Number);
@@ -59,7 +70,7 @@ function Predict(){
 
     return <Flex direction="column" justify="stretch" spaceY="10px">
         <Box textStyle="2xl" borderBottom="1px solid black">Upcoming Predictions</Box>
-        <VStack>
+        <VStack align="stretch">
         {
             upcomingPredictions.map((day, i) => (
                 <Box key={i} w="100%">
@@ -80,10 +91,23 @@ function Predict(){
                 </Box>
             ))
         }
+        {
+            loading && <SimpleGrid 
+                columns={getLoadingColumns()}
+                maxW="1200px"
+                gap="0"
+            >
+                {
+                    Array.from({ length: getLoadingColumns() }).map((game, j) => (
+                        <EmptyPredictCard key={j}/>
+                    ))
+                }
+            </SimpleGrid>
+        }
         </VStack>
         <br/>
         <Box textStyle="2xl" borderBottom="1px solid black">Recent Predictions</Box>
-        <VStack>
+        <VStack align="stretch">
         {
             recentPredictions.map((day, i) => (
                 <Box key={i} w="100%">
@@ -103,6 +127,19 @@ function Predict(){
                     </SimpleGrid>
                 </Box>
             ))
+        }
+        {
+            loading && <SimpleGrid 
+                columns={getLoadingColumns()}
+                maxW="1200px"
+                gap="0"
+            >
+                {
+                    Array.from({ length: getLoadingColumns() }).map((game, j) => (
+                        <EmptyPredictCard key={j}/>
+                    ))
+                }
+            </SimpleGrid>
         }
         </VStack>
     </Flex>

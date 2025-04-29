@@ -16,15 +16,19 @@ function Home(){
     const [leagueRequests, setLeagueRequests] = useState([])
     const [leagueCode, setLeagueCode] = useState('')
 
-    const [loading, setLoading] = useState(true)
+    // loading is true if there is a post, patch, or delete request to the server (ex. addFriend & removeFriend)
+    const [loading, setLoading] = useState(false)
+    const [loadingFriends, setLoadingFriends] = useState(true)
+    const [loadingLeagues, setLoadingLeagues] = useState(true)
     const { showNotification } = useNotification()
 
     useEffect(() => {
         getPlayer()
+        getLeagues()
     }, [])
 
     async function getPlayer(){
-        setLoading(true)
+        setLoadingFriends(true)
         try{
             const response = await api.get('/players/')
             const { friends, sent_requests, received_requests } = response.data.data
@@ -36,16 +40,11 @@ function Home(){
             console.error(err)
         }
         finally{
-            setLoading(false)
+            setLoadingFriends(false)
         }
     }
-
-    useEffect(() => {
-        getLeagues()
-    }, [])
-
     async function getLeagues(){
-        setLoading(true)
+        setLoadingLeagues(true)
         try{
             const response = await api.get('/leagues/invites')
             const { member_leagues, invited_leagues, requesting_leagues } = response.data.data
@@ -57,7 +56,7 @@ function Home(){
             console.error(err)
         }
         finally{
-            setLoading(false)
+            setLoadingLeagues(false)
         }
     }
 
@@ -71,14 +70,14 @@ function Home(){
             setLoading(true)
             const response = await api.post('/players/add-friend/', { friendId: friendCode })
             setFriendRequests({ 
-                sentRequests: [...requests.sentRequests, { id: response.data.id,  name: response.data.data.name }], 
-                receivedRequests: requests.receivedRequests 
+                sentRequests: [...friendRequests.sentRequests, { id: response.data.id,  name: response.data.data.name }], 
+                receivedRequests: friendRequests.receivedRequests 
             })
             showNotification(`${response.data.data.name} received your friend request`)
         }
         catch(err){
             showNotification('Something went wrong. Please try again')
-            console.error(err)
+            console.log(err)
         }
         finally{
             setLoading(false)
@@ -92,8 +91,8 @@ function Home(){
             console.log(response)
             setFriends([...friends, {id, name}])
             setFriendRequests({ 
-                sentRequests: requests.sentRequests,
-                receivedRequests: requests.receivedRequests.filter(request => request.id !== id)
+                sentRequests: friendRequests.sentRequests,
+                receivedRequests: friendRequests.receivedRequests.filter(request => request.id !== id)
             })
             showNotification(`${name} was added to your friend list`)
         }
@@ -110,14 +109,14 @@ function Home(){
         try{
             const response = await api.delete('/players/delete-request/', { data: { friendId: id } })
             setFriendRequests({
-                sentRequests: requests.sentRequests.filter(request => request.id !== id),
-                receivedRequests: requests.receivedRequests
+                sentRequests: friendRequests.sentRequests.filter(request => request.id !== id),
+                receivedRequests: friendRequests.receivedRequests
             })
             showNotification(`Friend request to ${name} was canceled`)
         }
         catch(err){
             showNotification('Something went wrong. Please try again')
-            console.error(err)
+            console.log(err)
         }
         finally{
             setLoading(false)
@@ -199,8 +198,6 @@ function Home(){
     }
     const boxStyles = {
         border: "1px solid black",
-        w: ["90vw", "45vw"],
-        maxW: "500px",
         p: "5px",
     }
     const headerStyles = {
@@ -232,7 +229,7 @@ function Home(){
         }
     }
     return <Flex direction="column" w="100vw" align="center">
-        <Box p="10px" justify="center" spaceY="20px">
+        <Flex direction="column" p="10px" justify="center" w="100vw" maxW="1280px" spaceY="20px">
             <Flex {...headerStyles} direction={["column", "column", "row"]} align={["stretch", "stretch", "flex-end"]}>
                 <Text textStyle="2xl">Friends</Text>
                 <Spacer/>
@@ -273,8 +270,8 @@ function Home(){
                             ))
                         }
                         {
-                            friends.length === 0 && <Box {...rowStyles}>
-                                <Text textStyle="sm">None</Text>
+                            (loadingFriends || friends.length === 0) && <Box {...rowStyles}>
+                                <Text textStyle="sm">{ loadingFriends ? "Loading..." : "None" }</Text>
                             </Box>
                         }
                     </Box>
@@ -303,8 +300,8 @@ function Home(){
                                 ))
                             }
                             {
-                                friendRequests.sentRequests.length === 0 && <Box {...rowStyles} borderWidth="0px">
-                                    <Text textStyle="sm">None</Text>
+                                (loadingFriends || friendRequests.sentRequests.length === 0) && <Box {...rowStyles} borderWidth="0px">
+                                    <Text textStyle="sm">{ loadingFriends ? "Loading..." : "None" }</Text>
                                 </Box>
                             }
                         </Box>
@@ -333,17 +330,14 @@ function Home(){
                                 ))
                             }
                             {
-                                friendRequests.receivedRequests.length === 0 && <Box {...rowStyles} borderWidth="0px">
-                                    <Text textStyle="sm">None</Text>
+                                (loadingFriends || friendRequests.receivedRequests.length === 0) && <Box {...rowStyles} borderWidth="0px">
+                                    <Text textStyle="sm">{ loadingFriends ? "Loading..." : "None" }</Text>
                                 </Box>
                             }
                         </Box>
                     </Box>
                 </Box>
             </SimpleGrid>
-            <Box>
-                <Predict/>
-            </Box>
             <Flex {...headerStyles} direction={["column", "column", "row"]} align={["stretch", "stretch", "flex-end"]}>
                 <Text textStyle="2xl">Leagues</Text>
                 <Spacer/>
@@ -384,8 +378,8 @@ function Home(){
                             ))
                         }
                         {
-                            leagues.length === 0 && <Box {...rowStyles} borderWidth="0px">
-                                <Text textStyle="sm">None</Text>
+                            (loadingLeagues || leagues.length === 0 )&& <Box {...rowStyles} borderWidth="0px">
+                                <Text textStyle="sm">{ loadingLeagues ? "Loading..." : "None" }</Text>
                             </Box>
                         }
                     </Box>
@@ -414,8 +408,8 @@ function Home(){
                                 ))
                             }
                             {
-                                leagueInvites.length === 0 && <Box {...rowStyles} borderWidth="0px">
-                                    <Text textStyle="sm">None</Text>
+                                (loadingLeagues || leagueInvites.length === 0 )&& <Box {...rowStyles} borderWidth="0px">
+                                    <Text textStyle="sm">{ loadingLeagues ? "Loading..." : "None" }</Text>
                                 </Box>
                             }
                         </Box>
@@ -444,15 +438,16 @@ function Home(){
                                 ))
                             }
                             {
-                                leagueRequests.length === 0 && <Box {...rowStyles} borderWidth="0px">
-                                    <Text textStyle="sm">None</Text>
+                                (loadingLeagues || leagueRequests.length === 0 )&& <Box {...rowStyles} borderWidth="0px">
+                                    <Text textStyle="sm">{ loadingLeagues ? "Loading..." : "None" }</Text>
                                 </Box>
                             }
                         </Box>
                     </Box>
                 </Box>
             </SimpleGrid>
-        </Box>
+            <Predict />
+        </Flex>
     </Flex>
 }
 export default Home

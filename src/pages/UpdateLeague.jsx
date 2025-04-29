@@ -312,23 +312,6 @@ function UpdateLeague() {
             <VStack align="stretch">
                 <Flex direction={["column", "row"]} spaceX={["0", "20px"]}>
                     <Text textStyle="md">My Friends</Text>
-                    <Flex direction="row">
-                        <Input
-                            {...inputStyles}
-                            h="fit-content"
-                            placeholder="Enter friend id"
-                            borderRightRadius="0"
-                        />
-                        <Button
-                            {...buttonStyles}
-                            h="fit-content"
-                            py="0"
-                            borderLeftRadius="0"
-                            bgColor="blue.400"
-                        >
-                            Send
-                        </Button>
-                    </Flex>
                 </Flex>
                 <Flex {...boxStyles} direction="column">
                     {

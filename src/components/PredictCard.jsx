@@ -60,6 +60,8 @@ function PredictCard({ predictionProp }){
     }
 
     const cardStyles = {
+        direction: "column",
+        justify: "space-evenly",
         w: "100%",
         p: "10px",
         spaceY: "10px",
@@ -89,7 +91,7 @@ function PredictCard({ predictionProp }){
         }
     }
 
-    return <Box {...cardStyles}>
+    return <Flex {...cardStyles}>
         <Box borderBottom="1px solid white">
             <Text textStyle="lg">{getLeagueNames()}</Text>
         </Box>
@@ -97,7 +99,7 @@ function PredictCard({ predictionProp }){
         <VStack>
             <Flex width="100%" direction="row" justify="flex-start" align="center">
                 <Image 
-                    h="40px"
+                    maxBlockSize="40px"
                     src={ getImage(prediction.away_team) }
                 />
                 <Text marginRight="10px">{prediction.away_team}</Text>
@@ -113,7 +115,7 @@ function PredictCard({ predictionProp }){
             </Flex>
             <Flex width="100%" direction="row" justify="flex-start" align="center">
                 <Image 
-                    h="40px"
+                    maxBlockSize="40px"
                     src={ getImage(prediction.home_team) }
                 />
                 <Text marginRight="10px">{prediction.home_team}</Text>
@@ -133,6 +135,6 @@ function PredictCard({ predictionProp }){
                 Lock Picks
             </Button>
         </Flex>
-    </Box>
+    </Flex>
 }
 export default PredictCard

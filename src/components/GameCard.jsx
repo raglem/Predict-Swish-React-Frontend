@@ -13,6 +13,7 @@ function GameCard({upcoming, recent, game, handleChat}){
     const navigate = useNavigate()
     const isMobile = useBreakpointValue({base: true, md: false})
     const { user } = useContext(UserContext)
+    console.log(game)
 
     const images = import.meta.glob("../assets/logos/*.png", { eager: true });
     const getImage = (team) => images[`../assets/logos/${team}.png`]?.default;
@@ -36,8 +37,11 @@ function GameCard({upcoming, recent, game, handleChat}){
     }
 
     const gameCardStyles = {
+        direction: "column",
+        justify: "space-between",
         h: "100%",
         w: "60%",
+        maxH: "260px",
         maxW: "300px",
         p: "10px",
         spaceY: "5",
@@ -50,7 +54,8 @@ function GameCard({upcoming, recent, game, handleChat}){
         w: "40%",
         maxW: "200px",
         bgColor: "red.500",
-        spaceY: "2"
+        spaceY: "2",
+        overflowY: "auto",
     }
     const buttonStyles = {
         h: "fit-content",
@@ -63,9 +68,9 @@ function GameCard({upcoming, recent, game, handleChat}){
         }
     }
 
-    return <Box display="flex" w="fit-content">
+    return <Flex>
         <HStack align="stretch" w="100%">
-            <Box {...gameCardStyles}>
+            <Flex {...gameCardStyles}>
                 <Flex justify="space-between" align="center" borderBottom="1px solid white">
                     <Text textStyle="lg">{game.league.name}</Text>
                     <Icon 
@@ -78,12 +83,12 @@ function GameCard({upcoming, recent, game, handleChat}){
                 </Flex>
                 <HStack paddingBottom="5px">
                     <Flex direction="column" justify="center">
-                        <Image src={ getImage(game.away_team )} maxW="100%"/>
+                        <Image src={ getImage(game.away_team )} maxBlockSize="100px"/>
                         <Text textAlign="center">{checkLength(game.away_team)}</Text>
                     </Flex>
                     <Text>vs</Text>
                     <Flex direction="column" justify="center">
-                        <Image src={ getImage(game.home_team )} maxW="100%"/>
+                        <Image src={ getImage(game.home_team )} maxBlockSize="100px"/>
                         <Text textAlign="center">{checkLength(game.home_team)}</Text>
                     </Flex>
                 </HStack>
@@ -92,17 +97,26 @@ function GameCard({upcoming, recent, game, handleChat}){
                     <Spacer />
                     <Flex direction={isMobile ? "column": "row"} gap="2">
                         {
-                            upcoming && <Button {...buttonStyles} bgColor="green.500" onClick={() => navigate('/home')}>
+                            upcoming &&
+                            <Button 
+                                {...buttonStyles} 
+                                bgColor="green.500" 
+                                disabled = {game.predictions.find(prediction => prediction.username === user && prediction.status === "Submitted")}
+                                onClick={() => navigate('/home')}
+                            >
                                 Predict
                             </Button>
                         }
                         {
-                            recent && <Text>{ game.predictions.find(prediction => prediction.username === user).score }</Text>
+                            recent && 
+                            <Text>
+                            { game.predictions.find(prediction => prediction.username === user)?.score ?? 0 }
+                            </Text>
                         }
                     </Flex>
                 </HStack>
-            </Box>
-            <Box {...leaderboardCardStyles} flex="1">
+            </Flex>
+            <Flex {...leaderboardCardStyles} flex="1">
                 {
                     upcoming && game.predictions.map((member, i) => (
                         <HStack key={i}>
@@ -115,16 +129,18 @@ function GameCard({upcoming, recent, game, handleChat}){
                     ))
                 }
                 {
-                    recent && game.predictions.map((member, i) => (
+                    recent && (game.predictions.length > 0 ? game.predictions.map((member, i) => (
                         <Flex key={i} borderBottom="1px solid white">
                             <Text>{i+1}. {member.username}</Text>
                             <Spacer />
                             <Text> {member.score} </Text>
                         </Flex>
-                    ))
-                }
-            </Box>
+                    )) : <Flex>
+                        No Rankings
+                    </Flex>
+                )}               
+            </Flex>
         </HStack>
-    </Box>
+    </Flex>
 }
 export default GameCard

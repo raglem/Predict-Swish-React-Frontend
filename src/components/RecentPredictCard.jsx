@@ -76,7 +76,7 @@ function RecentPredictCard({ predictionProp }){
         </Flex>
         <Box>
             <SimpleGrid columns={4} columnGap={4} templateColumns="1fr 2fr 1fr 1fr" alignItems="center">
-                <Image src={getImage(prediction.away_team)} boxSize="50px" />
+                <Image src={getImage(prediction.away_team)} maxBlockSize="40px" />
                 <Text fontSize="lg">{checkLength(prediction.away_team)}</Text>
                 <Text>{prediction.actual_away_team_score}</Text>
                 <Flex direction="row" justify="space-evenly" alignItems="center" flexWrap="no-wrap"> 
@@ -88,7 +88,7 @@ function RecentPredictCard({ predictionProp }){
                     {prediction.predicted_away_team_score}
                 </Flex>
 
-                <Image src={getImage(prediction.home_team)} boxSize="50px" />
+                <Image src={getImage(prediction.home_team)} maxBlockSize="40px" />
                 <Text fontSize="lg">{checkLength(prediction.home_team)}</Text>
                 <Text>{prediction.actual_home_team_score}</Text>
                 <Flex direction="row" justify="space-evenly" align="center" flexWrap="nowrap">

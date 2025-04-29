@@ -80,7 +80,7 @@ function Chat({gameInfo, leagueInfo, handleChat}){
             content: message.content,
         }
     }
-    return <Flex direction="column" h="100%" w="100%" borderRadius="5px">
+    return <Flex direction="column" h="100%" w="100%" borderRadius="5px" borderLeft="2px solid white">
         <Flex 
             h="50px" 
             justify="space-between" 
