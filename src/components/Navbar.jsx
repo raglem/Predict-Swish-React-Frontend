@@ -59,7 +59,7 @@ function Navbar() {
         navigate(`/${page}`)
     }
 
-    const logout = () => {
+    const handleLogout = () => {
         //hold value for current user from userContext
         const tempUser = user
 
@@ -76,12 +76,12 @@ function Navbar() {
             direction="row" 
             align="center"
             h="50px" 
-            w="100vw" 
-            p="10px" 
+            w="100vw"  
             bgColor="blue.400"
+            paddingY="10px"
         >
             
-            <Heading fontWeight="bold" color="white">
+            <Heading fontWeight="bold" color="white" marginLeft="10px">
                 Predict & Swish
             </Heading>
 
@@ -104,6 +104,7 @@ function Navbar() {
                                 cursor: "pointer",
                                 opacity: 0.5
                             }}
+                            marginRight="10px"
                             onClick={() => setShowDropdown(!showDropdown)}
                         />
                         {showDropdown && 
@@ -122,8 +123,11 @@ function Navbar() {
                                 <Box {...optionStyles} onClick={() => handlePageChange('games')}>
                                     Games
                                 </Box>
-                                <Box {...optionStyles} onClick={() => handlePageChange('home')}>
+                                <Box {...optionStyles} onClick={() => handlePageChange('leagues')}>
                                     Leagues
+                                </Box>
+                                <Box {...optionStyles} onClick={handleLogout}>
+                                    Logout
                                 </Box>
                             </Flex>
                         } 
@@ -153,7 +157,7 @@ function Navbar() {
                         </Button>
                         <Button 
                             {...buttonStyles}  
-                            onClick={logout}
+                            onClick={handleLogout}
                         >
                             Logout
                         </Button>

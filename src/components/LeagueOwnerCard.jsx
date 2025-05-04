@@ -46,8 +46,8 @@ function LeagueOwnerCard(props){
                     <Box fontSize="0.75rem">
                         <Text># of Players: {props.league.stats.total_players}</Text>
                         <Text>Total Games Played: {props.league.stats.total_games_played}</Text>
-                        <Text>Avg Game Score: {props.league.stats.total_score_of_all_games}</Text>
-                        <Text>Avg Total Score: {props.league.stats.total_of_average_player_score_per_game}</Text>
+                        <Text>Avg Game Score: {props.league.stats.average_game_score}</Text>
+                        <Text>Avg Total Score: {props.league.stats.total_score_of_all_games}</Text>
                     </Box>
                 </Flex>
                 <Flex direction="column">

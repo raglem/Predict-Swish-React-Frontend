@@ -178,7 +178,8 @@ function UpdateLeague() {
             }
         }
     }
-    return <Form>
+    return <Flex justify="center" align="center" h="100vh" w="100vw">
+        <Flex direction="column" w="90%" maxH="90vh" maxW="1280px" {...boxStyles} p="20px" spaceY="20px" overflowY="auto">
             <Flex {...headerStyles}>
                 <Text textStyle="lg">
                     Update League | {original.name}
@@ -189,7 +190,7 @@ function UpdateLeague() {
                 </Text>
             </Flex>
 
-            <VStack>
+            <VStack {...boxStyles}>
                 <Box w="100%">
                     <Text textStyle="sm">Name</Text>
                     <Input 
@@ -342,13 +343,11 @@ function UpdateLeague() {
             </VStack>
             
             <Flex justify="flex-end" spaceX="20px">
-                <Button {...buttonStyles} bgColor="red.500" w="40%" maxW="200px">
-                    <Text textStyle="md" onClick={() => navigate('/leagues/')}>Delete</Text>
-                </Button>
-                <Button {...buttonStyles} w="40%" maxW="200px">
-                    <Text textStyle="md" onClick={() => navigate('/leagues/')}>Exit</Text>
+                <Button {...buttonStyles} w="40%" maxW="200px" onClick={() => navigate('/leagues/')}>
+                    <Text textStyle="md">Exit</Text>
                 </Button>
             </Flex>
-        </Form>
+        </Flex>
+    </Flex>
 }
 export default UpdateLeague

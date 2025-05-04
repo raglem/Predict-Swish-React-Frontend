@@ -76,7 +76,7 @@ function Predict(){
                 <Box key={i} w="100%">
                     <Text textStyle="lg">{formatDate(day.date)}</Text>
                     <SimpleGrid 
-                        columns={columns}
+                        columns={[1, 2, 3, 4]}
                         maxW="1200px"
                         gap="0"
                     >
@@ -113,7 +113,7 @@ function Predict(){
                 <Box key={i} w="100%">
                     <Text textStyle="lg">{formatDate(day.date)}</Text>
                     <SimpleGrid 
-                        columns={columns}
+                        columns={[1, 2, 3, 4]}
                         maxW="1200px"
                         gap="0"
                     >
