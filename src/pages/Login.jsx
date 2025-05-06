@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { Box, Button, Flex, Input, Text } from "@chakra-ui/react"
 import { motion, AnimatePresence } from "framer-motion"
 import { UserContext } from '../context/CurrentUser.jsx'
+import Loading from '@/components/loading/Loading.jsx'
 
 const MotionFlex = motion.create(Flex)
 
@@ -14,6 +15,7 @@ function Login(){
     const [form, setForm] = useState("login")
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
+    const [loading, setLoading] = useState(false)
 
     const { showNotification } = useNotification()
 
@@ -21,6 +23,7 @@ function Login(){
     const { setUser } = useContext(UserContext)
 
     async function handleLogin(){
+        setLoading(true)
         if(username === '' || !password === ''){
             showNotification('Please enter in all fields.')
             return
@@ -34,7 +37,9 @@ function Login(){
             localStorage.setItem(ACCESS_TOKEN, response.data.token)
             setUser(username)
             navigate('/home')
-        } catch(err){
+        } 
+        catch(err){
+            console.log(err)
             if(err?.status === 401){
                 showNotification('Invalid user credentials. Please try again.')
             }
@@ -43,8 +48,12 @@ function Login(){
                 showNotification('Something went wrong.')
             }
         }
+        finally{
+            setLoading(false)
+        }
     }
     async function handleRegister(){
+        setLoading(true)
         if(username === '' || !password === ''){
             showNotification('Please enter in all fields.')
             return
@@ -64,6 +73,9 @@ function Login(){
             else{
                 showNotification('Something went wrong.')
             }
+        }
+        finally{
+            setLoading(false)
         }
     }
     const selectedStyles = {
@@ -151,6 +163,8 @@ function Login(){
                         onChange={(e) => setPassword(e.target.value)}
                     />
                 </form>
+
+                { loading && <Loading />}
 
                 <Button
                     h="35px"
