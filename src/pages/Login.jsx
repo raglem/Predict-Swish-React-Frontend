@@ -39,6 +39,7 @@ function Login(){
                 showNotification('Invalid user credentials. Please try again.')
             }
             else{
+                console.log(err)
                 showNotification('Something went wrong.')
             }
         }
